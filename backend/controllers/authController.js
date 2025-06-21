@@ -48,43 +48,37 @@ const signup = catchAsync(async (req, res, next) => {
 });
 
 // Login Controller
-const login = async (req, res, next) => {
-  try {
-    const { email, password } = req.body;
-    console.log('Login attempt for:', email);
+const login = catchAsync(async (req, res, next) => {
+  const { email, password } = req.body;
+  console.log('Login attempt for:', email);
 
-    // Check if email and password exist
-    if (!email || !password) {
-      return next(new AppError('Please provide email and password!', 400));
-    }
-
-    // Check if user exists && password is correct
-    const user = await User.findOne({ email }).select('+password');
-    console.log('User found:', user ? 'yes' : 'no');
-
-    if (!user || !(await user.correctPassword(password, user.password))) {
-      return next(new AppError('Incorrect email or password', 401));
-    }
-
-    // If everything ok, send token to client
-    const token = signToken(user._id);
-    console.log('Login successful, token generated');
-
-    res.status(200).json({
-      status: 'success',
-      token,
-      data: {
-        user: {
-          id: user._id,
-          email: user.email
-        }
-      }
-    });
-  } catch (error) {
-    console.error('Login error:', error);
-    next(error);
+  // 1) Check if email and password exist
+  if (!email || !password) {
+    return next(new AppError('Please provide email and password!', 400));
   }
-};
+  // 2) Check if user exists && password is correct
+  const user = await User.findOne({ email }).select('+password');
+  console.log('User found:', user ? 'yes' : 'no');
+
+  if (!user || !(await user.correctPassword(password, user.password))) {
+    return next(new AppError('Incorrect email or password', 401));
+  }
+
+  // 3) If everything ok, send token to client
+  const token = signToken(user._id);
+  console.log('Login successful, token generated');
+
+  res.status(200).json({
+    status: 'success',
+    token,
+    data: {
+      user: {
+        id: user._id,
+        email: user.email
+      }
+    }
+  });
+});
 
 // Protect Middleware (Authorization)
 const protect = catchAsync(async (req, res, next) => {
