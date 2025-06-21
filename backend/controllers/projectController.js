@@ -18,10 +18,10 @@ const projectController = {
     };
 
     const doc = await Project.create(projectData);
-    
+
     // Populate creator details in the response
     const populatedDoc = await Project.findById(doc._id).populate('creator', 'userName profilePicture');
-      
+
     res.status(201).json({
       status: 'success',
       data: { project: populatedDoc }
@@ -57,21 +57,21 @@ const projectController = {
   // Save a project
   saveProject: catchAsync(async (req, res, next) => {
     const project = await Project.findById(req.params.id);
-    
+
     if (!project) {
       return next(new AppError("Project not found", 404));
     }
     // Logic to save the project for the user
-    res.status(200).json({ 
+    res.status(200).json({
       status: "success",
-      message: "Project saved" 
+      message: "Project saved"
     });
   }),
 
   // Apply for a project
   applyProject: catchAsync(async (req, res, next) => {
     const project = await Project.findById(req.params.id);
-    
+
     if (!project) {
       return next(new AppError("Project not found", 404));
     }
@@ -91,18 +91,42 @@ const projectController = {
     });
 
     await project.save();
-    res.status(200).json({ 
+    res.status(200).json({
       status: "success",
-      message: "Application submitted successfully" 
+      message: "Application submitted successfully"
     });
   }),
 
   // Skip a project
   skipProject: catchAsync(async (req, res, next) => {
     // Logic to skip the project
-    res.status(200).json({ 
+    res.status(200).json({
       status: "success",
-      message: "Project skipped" 
+      message: "Project skipped"
+    });
+  }),
+
+  // Fetch projects created by the logged-in user, with pagination
+  getMyProjects: catchAsync(async (req, res, next) => {
+    const userId = req.user._id;
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 5;
+    const skip = (page - 1) * limit;
+
+    const total = await Project.countDocuments({ creator: userId });
+    const projects = await Project.find({ creator: userId })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate('creator', 'userName profilePicture');
+
+    res.status(200).json({
+      status: 'success',
+      results: projects.length,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit),
+      data: { projects }
     });
   }),
 

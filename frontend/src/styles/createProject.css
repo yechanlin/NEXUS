@@ -1,0 +1,102 @@
+.create-project-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #121212;
+  color: #e0e0e0;
+  padding: 2rem 0;
+}
+
+.create-project-form {
+  background-color: #1e1e1e;
+  border-radius: 16px;
+  border: 1px solid #333;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.create-project-form h2 {
+  margin-bottom: 0.5rem;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #00aaff;
+  text-align: center;
+}
+
+.create-project-form input,
+.create-project-form textarea,
+.create-project-form select {
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  font-family: inherit;
+  background-color: #2a2a2a;
+  color: #e0e0e0;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.create-project-form input:focus,
+.create-project-form textarea:focus,
+.create-project-form select:focus {
+  outline: none;
+  border-color: #00aaff;
+  box-shadow: 0 0 5px #00aaff;
+}
+
+.create-project-form textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.create-project-form button[type="submit"] {
+  background-color: #0088cc;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.9rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 1.2rem;
+  width: 100%;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 0 5px #00aaff, 0 0 10px #00aaff;
+}
+
+.create-project-form button[type="submit"]:hover {
+  background-color: #00aaff;
+  box-shadow: 0 0 10px #00aaff, 0 0 20px #00aaff;
+}
+
+.error-message {
+  color: #ff4d4d;
+  background-color: rgba(255, 77, 77, 0.1);
+  border: 1px solid #ff4d4d;
+  border-radius: 6px;
+  padding: 0.7rem 1rem;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+.success-message {
+  color: #44cc44;
+  background-color: rgba(68, 204, 68, 0.1);
+  border: 1px solid #44cc44;
+  border-radius: 6px;
+  padding: 0.7rem 1rem;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .create-project-form {
+    padding: 1.5rem 1rem;
+  }
+} 

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/mainPage.css';
+import '../styles/navbar.css';
 import SwipeCard from '../components/SwipeCard';
 import { FiUser, FiUsers, FiBookmark, FiGrid } from 'react-icons/fi';
 import { API_ENDPOINTS } from '../config/api';
+import { useNavigate } from 'react-router-dom';
 
 const MainPage = () => {
   const [projects, setProjects] = useState([]);
@@ -14,6 +16,7 @@ const MainPage = () => {
     skills: [],
     maxDistance: 50
   });
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchProjects();
@@ -90,26 +93,6 @@ const MainPage = () => {
 
   return (
     <div className="main-page">
-      <nav className="navbar">
-        <div className="nav-brand">NEXUS</div>
-        <div className="nav-links">
-          <button className="nav-link active">
-            <FiGrid /> Projects
-          </button>
-          <button className="nav-link">
-            <FiUsers /> Members
-          </button>
-          <button className="nav-link">
-            <FiBookmark /> Saved
-          </button>
-        </div>
-        <div className="profile-section">
-          <button className="profile-button">
-            <FiUser />
-          </button>
-        </div>
-      </nav>
-
       <main className="main-content">
         {loading ? (
           <div className="loading-spinner">Loading projects...</div>

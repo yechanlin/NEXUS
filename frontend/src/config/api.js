@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://nexus-backend-chi.vercel.app";
+const API_BASE_URL = "http://localhost:5001";
 
 export const API_ENDPOINTS = {
   login: `${API_BASE_URL}/api/users/login`,

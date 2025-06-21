@@ -8,8 +8,7 @@
 
 /* Styles for Main Page */
 .main-page {
-  min-height: 100vh;
-  background-color: #f8fafc; /* Light background to test visibility */
+  background-color: #121212;
 }
 
 /* Navigation Bar */
@@ -86,14 +85,13 @@
 }
 
 .main-content {
-  padding-top: 90px;
   max-width: 600px;
   margin: 0 auto;
-  min-height: calc(100vh - 90px);
+  min-height: calc(100vh - 70px); /* Adjust for navbar height */
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #f1f5f9; /* Light background to test visibility */
+  padding-top: 70px; /* Add padding for fixed navbar */
 }
 
 .card-stack {
@@ -101,19 +99,17 @@
   height: 600px;
   width: 100%;
   max-width: 500px;
-  background-color: #e2e8f0; /* Light background to test visibility */
 }
 
-.loading-spinner {
-  text-align: center;
-  padding: 2rem;
-  color: #64748b;
-}
-
+.loading-spinner,
 .no-projects {
   text-align: center;
   padding: 2rem;
-  color: #64748b;
+  color: #888;
+}
+
+.no-projects h3 {
+  color: #fff;
 }
 
 .refresh-button {
@@ -121,16 +117,17 @@
   padding: 0.75rem 1.5rem;
   border-radius: 8px;
   border: none;
-  background: #2563eb;
+  background-color: #0088cc;
   color: white;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 0 5px #00aaff, 0 0 10px #00aaff;
 }
 
 .refresh-button:hover {
-  background: #1d4ed8;
-  transform: translateY(-1px);
+  background-color: #00aaff;
+  box-shadow: 0 0 10px #00aaff, 0 0 20px #00aaff;
 }
 
 .project-card-container {
@@ -280,63 +277,83 @@
 
 .swipe-card-container {
   position: absolute;
-  width: 100%;
-  height: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .swipe-card {
+  background-color: #1e1e1e;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 500px;
+  height: 90%;
+  max-height: 700px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  cursor: grab;
   position: absolute;
-  width: 100%;
-  height: 100%;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  border: 1px solid #333;
+  color: #e0e0e0;
+}
+
+.swipe-card:active {
+  cursor: grabbing;
 }
 
 .card-content {
-  padding: 24px;
+  padding: 2rem;
   height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  background: white;
+}
+
+.card-content h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.5rem;
 }
 
 .project-type-badge {
-  display: inline-block;
-  padding: 6px 12px;
-  background: #e5e7eb;
-  border-radius: 999px;
-  font-size: 14px;
-  color: #4b5563;
+  background-color: rgba(0, 170, 255, 0.1);
+  color: #00aaff;
+  padding: 0.3rem 0.8rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  align-self: flex-start;
+  margin-bottom: 1rem;
 }
 
 .location {
-  color: #6b7280;
-  font-size: 14px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #aaa;
+  margin-bottom: 1.5rem;
 }
 
 .description {
-  font-size: 16px;
-  line-height: 1.5;
-  color: #1f2937;
+  font-size: 1rem;
+  line-height: 1.6;
+  flex-grow: 1;
 }
 
 .skills-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: auto;
+  gap: 0.5rem;
+  margin-top: 1rem;
 }
 
 .skill-badge {
-  padding: 6px 12px;
-  background: #f3f4f6;
-  border-radius: 999px;
-  font-size: 14px;
-  color: #4b5563;
+  background-color: #333;
+  color: #e0e0e0;
+  padding: 0.4rem 0.8rem;
+  border-radius: 16px;
+  font-size: 0.8rem;
 }

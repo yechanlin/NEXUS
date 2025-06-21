@@ -1,7 +1,6 @@
 import React from 'react';
 import { motion, useMotionValue, useTransform, useAnimation } from 'framer-motion';
 import { FiX, FiCheck } from 'react-icons/fi';
-import '../styles/swipeCard.css';
 
 const SwipeCard = ({ project, onSwipe }) => {
   const controls = useAnimation();
@@ -54,14 +53,14 @@ const SwipeCard = ({ project, onSwipe }) => {
     <div className="swipe-card-container">
       <motion.div
         className="swipe-card"
-        drag={true} // Allow dragging in all directions
+        drag={true}
         dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-        dragElastic={0.7} // Add some elasticity to the drag
-        style={{ 
+        dragElastic={0.7}
+        style={{
           x: dragX,
           y: dragY,
           rotate,
-          opacity 
+          opacity,
         }}
         onDragEnd={handleDragEnd}
         animate={controls}
@@ -69,7 +68,9 @@ const SwipeCard = ({ project, onSwipe }) => {
       >
         <div className="card-content">
           <h2>{project.title || 'Project Title'}</h2>
-          <div className="project-type-badge">{project.projectType || 'Type'}</div>
+          <div className="project-type-badge">
+            {project.projectType || 'Type'}
+          </div>
           <p className="location">{project.location || 'Location'}</p>
           <p className="description">{project.description || 'Description'}</p>
           <div className="skills-list">

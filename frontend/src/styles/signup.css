@@ -1,44 +1,59 @@
-.navbar {
-  display: inline-block;
-  position:absolute;
-  top: 0%;
-  left : 0%;
-  background-color: #FAFAFA;
-  width:100%;
-  height: 6%;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);;
-}
-
-.logo-text {
-  position: absolute;
-  top: 12%;
-  left: 12%;
-  font-size: 30px;
-  font-weight: 475;
+.signup-page-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100%;
+  background-color: #121212;
 }
 
 .signup {
-  padding: 20px;
-  border: 1px solid #ccc;
+  padding: 40px;
+  border: 1px solid #333;
   border-radius: 10px;
-  margin-top: 0;
   width: 428px;
-  height: auto;
   display: flex;
   align-items: center;
   flex-direction: column;
   gap: 20px;
   box-sizing: border-box;
-  background-color: #FAFAFA;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: #1e1e1e;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+  color: #e0e0e0;
+}
+
+.logo {
+  margin-bottom: -20px;
+}
+
+.userFields {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
 }
 
 .field {
   height: 48px;
   border-radius: 8px;
-  border: 1px solid #ccc;
+  border: 1px solid #444;
   padding: 10px;
   font-size: 16px;
+  background-color: #2a2a2a;
+  color: #e0e0e0;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.field:focus {
+  outline: none;
+  border-color: #00aaff;
+  box-shadow: 0 0 5px #00aaff;
+}
+
+.field::placeholder {
+  color: #aaa;
 }
 
 .checkbox-container {
@@ -47,7 +62,7 @@
   gap: 10px;
   margin-top: 15px;
   font-size: 12px;
-  color: #000;
+  color: #e0e0e0;
   width: 100%;
 }
 
@@ -55,33 +70,41 @@
   width: 16px;
   height: 16px;
   margin-left: 5px;
+  accent-color: #00aaff;
 }
 
 .checkbox-container label {
   line-height: 1.2;
-  color: #000;
+  color: #e0e0e0;
 }
 
 .loginField {
   margin-top: 20px;
   cursor: pointer;
-  background-color: #5C6C90;
+  background-color: #0088cc;
   color: white;
   padding: 10px 20px;
   border: none;
   border-radius: 8px;
   font-size: 16px;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  width: 100%;
+  box-shadow: 0 0 5px #00aaff, 0 0 10px #00aaff;
 }
 
 .loginField:hover {
-  background-color: #0056b3;
+  background-color: #00aaff;
+  box-shadow: 0 0 10px #00aaff, 0 0 20px #00aaff;
 }
 
 .error {
-  color: red;
+  color: #ff4d4d;
 }
 
-.text-link{
-  color: #000000;
+.text-link {
+  color: #00aaff;
+}
+
+.footer-container {
+  margin-top: 10px;
 }

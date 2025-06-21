@@ -46,15 +46,10 @@ const Login = () => {
   };
 
   return (
-    <>
-      <div className="navbar">
-        <nav>
-          <h1 className="logo-text">NEXUS</h1>
-        </nav>
-      </div>
+    <div className="login-page-container">
       <div className="login">
         <div className="logo">
-          <img src="/images/nexuslogo.png" alt="NEXUS Logo" />
+          <img src="/images/nexus_logo.png" alt="NEXUS Logo" />
         </div>
         <div className="userFields">
           <input
@@ -84,7 +79,7 @@ const Login = () => {
           </footer>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
