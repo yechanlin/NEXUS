@@ -39,7 +39,9 @@
   font-family: inherit;
   background-color: #2a2a2a;
   color: #e0e0e0;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .create-project-form input:focus,
@@ -55,7 +57,7 @@
   resize: vertical;
 }
 
-.create-project-form button[type="submit"] {
+.create-project-form button[type='submit'] {
   background-color: #0088cc;
   color: #fff;
   border: none;
@@ -66,13 +68,19 @@
   cursor: pointer;
   margin-top: 1.2rem;
   width: 100%;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 0 5px #00aaff, 0 0 10px #00aaff;
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
+  box-shadow:
+    0 0 5px #00aaff,
+    0 0 10px #00aaff;
 }
 
-.create-project-form button[type="submit"]:hover {
+.create-project-form button[type='submit']:hover {
   background-color: #00aaff;
-  box-shadow: 0 0 10px #00aaff, 0 0 20px #00aaff;
+  box-shadow:
+    0 0 10px #00aaff,
+    0 0 20px #00aaff;
 }
 
 .error-message {
@@ -95,8 +103,51 @@
   text-align: center;
 }
 
+.skills-input-container {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.skills-input-container input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.skill-suggestions-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: #2a2a2a;
+  border: 1px solid #444;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  max-height: 150px;
+  overflow-y: auto;
+  z-index: 100;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.skill-suggestion-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 0.95em;
+  color: #e0e0e0;
+  transition: background-color 0.2s ease;
+}
+
+.skill-suggestion-item:hover {
+  background-color: #3a3a3a;
+}
+
+.skill-suggestion-item:last-child {
+  border-radius: 0 0 8px 8px;
+}
+
 @media (max-width: 600px) {
   .create-project-form {
     padding: 1.5rem 1rem;
   }
-} 
+}
