@@ -28,7 +28,34 @@ const userSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
-  }
+  },
+  skippedProjects: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Project',
+    default: []
+  }],
+  notifications: [{
+    type: {
+      type: String, // e.g., 'application_status', 'new_application'
+      required: true
+    },
+    message: {
+      type: String,
+      required: true
+    },
+    relatedProject: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Project',
+    },
+    read: {
+      type: Boolean,
+      default: false
+    },
+    timestamp: {
+      type: Date,
+      default: Date.now
+    }
+  }]
 });
 
 // Virtual populate for applied projects

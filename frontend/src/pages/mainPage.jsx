@@ -66,7 +66,6 @@ const MainPage = () => {
 
   const handleSwipe = async (direction) => {
     const currentProject = projects[currentIndex];
-    
     try {
       const token = localStorage.getItem('token');
       if (direction === 'right') {
@@ -77,8 +76,15 @@ const MainPage = () => {
             'Content-Type': 'application/json'
           }
         });
+      } else if (direction === 'left') {
+        await fetch(API_ENDPOINTS.skipProject(currentProject._id), {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
       }
-      
       // Move to next project
       if (currentIndex < projects.length - 1) {
         setCurrentIndex(prev => prev + 1);

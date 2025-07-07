@@ -42,4 +42,18 @@ const userController = {
   }),
 };
 
+export const getNotifications = catchAsync(async (req, res, next) => {
+  const userId = req.user._id;
+  const User = (await import('../models/User.js')).default;
+  const user = await User.findById(userId).populate('notifications.relatedProject', 'title');
+  if (!user) {
+    return next(new AppError('User not found', 404));
+  }
+  res.status(200).json({
+    status: 'success',
+    results: user.notifications.length,
+    data: { notifications: user.notifications }
+  });
+});
+
 export default userController;
