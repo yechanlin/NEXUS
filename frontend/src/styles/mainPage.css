@@ -1,6 +1,7 @@
 /* Add these font definitions at the top */
 :root {
-  --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Roboto, sans-serif;
   --font-weight-normal: 400;
   --font-weight-medium: 500;
   --font-weight-bold: 600;
@@ -89,7 +90,7 @@
   margin: 0 auto;
   min-height: calc(100vh - 70px); /* Adjust for navbar height */
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
   padding-top: 70px; /* Add padding for fixed navbar */
 }
@@ -121,13 +122,19 @@
   color: white;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 0 5px #00aaff, 0 0 10px #00aaff;
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
+  box-shadow:
+    0 0 5px #00aaff,
+    0 0 10px #00aaff;
 }
 
 .refresh-button:hover {
   background-color: #00aaff;
-  box-shadow: 0 0 10px #00aaff, 0 0 20px #00aaff;
+  box-shadow:
+    0 0 10px #00aaff,
+    0 0 20px #00aaff;
 }
 
 .project-card-container {
@@ -165,7 +172,8 @@
   padding: 20px;
 }
 
-.skip-button, .apply-button {
+.skip-button,
+.apply-button {
   width: 60px;
   height: 60px;
   border-radius: 50%;
@@ -185,7 +193,8 @@
   color: white;
 }
 
-.skip-button:hover, .apply-button:hover {
+.skip-button:hover,
+.apply-button:hover {
   transform: scale(1.1);
 }
 
@@ -356,4 +365,50 @@
   padding: 0.4rem 0.8rem;
   border-radius: 16px;
   font-size: 0.8rem;
+}
+
+/* Filter UI styles */
+.filter-container {
+  background: #222;
+  padding: 1rem;
+  border-radius: 20px;
+  margin-bottom: 1rem;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: flex-start;
+  width: 100%;
+  max-width: 450px;
+  box-sizing: border-box;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  border: 1px solid #333;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.filter-label {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.filter-select,
+.filter-input {
+  margin-left: 0.5rem;
+  width: 60%;
+  padding: 0.3rem 0.5rem;
+  border-radius: 12px;
+  border: 1px solid #444;
+  background: #181818;
+  color: #fff;
+  font-size: 1rem;
+}
+
+.filter-select:focus,
+.filter-input:focus {
+  outline: none;
+  border-color: #00aaff;
 }
