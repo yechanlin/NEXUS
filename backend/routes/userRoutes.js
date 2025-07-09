@@ -4,6 +4,7 @@ import authController from "../controllers/authController.js";
 import userController from "../controllers/userController.js";
 import { AppError } from "../utils/apperror.js";
 import { globalErrorHandler } from "../controllers/errorController.js";
+import { getNotifications } from '../controllers/userController.js';
 
 const router = express.Router();
 
@@ -21,4 +22,8 @@ router.get("/:id", userController.getUser);
 
 // Update the user profile
 router.patch("/profilesetup", userController.updateUserProfile);
+
+// Get notifications for the logged-in user
+router.get('/notifications', authController.protect, getNotifications);
+
 export default router;

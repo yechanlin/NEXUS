@@ -10,6 +10,8 @@ import ProfileSetup from './pages/profilesetup';
 import MainPage from './pages/mainPage';
 import CreateProject from './pages/CreateProject';
 import MyProjects from './pages/MyProjects';
+import Recruiter from './pages/recruiter';
+import Searcher from './pages/searcher';
 import Navbar from './components/Navbar';
 
 function App() {
@@ -37,6 +39,8 @@ function AppContent() {
           <Route path="/mainPage" element={<MainPage />} />
           <Route path="/create-project" element={<CreateProject />} />
           <Route path="/my-projects" element={<MyProjects />} />
+          <Route path="/recruiter" element={<Recruiter />} />
+          <Route path="/searcher" element={<Searcher />} />
         </Routes>
       </main>
     </>

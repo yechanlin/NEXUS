@@ -10,9 +10,14 @@ import globalErrorHandler from './controllers/errorController.js';
 const app = express();
 app.use(
   cors({
-    origin: '*',
+    origin: [
+      '*',
+      'http://localhost:5173',
+      'https://nexus-collab.vercel.app'
+    ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
   })
 );
 app.use(express.json());
