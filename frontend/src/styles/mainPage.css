@@ -375,7 +375,7 @@
   margin-bottom: 1rem;
   color: #fff;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 0.75rem;
   align-items: flex-start;
   width: 100%;
@@ -411,4 +411,12 @@
 .filter-input:focus {
   outline: none;
   border-color: #00aaff;
+}
+
+.back-button-container {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  max-width: 450px;
+  margin-right: 1rem;
 }
