@@ -1,0 +1,324 @@
+.profile-setup {
+  min-height: calc(100vh - 70px);
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 90px;
+  max-width: 600px;
+  margin: 24px auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  border: 1px solid #333;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+/* Header styling */
+.profile-setup h1 {
+  font-size: 1.8rem;
+  font-weight: var(--font-weight-bold);
+  color: #fff;
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.5px;
+}
+
+/* Profile Picture Section*/
+.profile-picture {
+  position: relative;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.profile-picture label {
+  display: block;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  color: #aaa;
+  font-weight: var(--font-weight-medium);
+}
+
+.circle {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin: 0 auto;
+  border: 2px solid #333;
+  background-color: #23272f;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s ease;
+}
+
+.circle:hover {
+  box-shadow: 0 6px 12px rgba(0, 170, 255, 0.3);
+  transform: translateY(-2px);
+  cursor: pointer;
+}
+
+.profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.edit-icon {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background-color: #0088cc;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edit-icon:hover {
+  background-color: #00aaff;
+  transform: scale(1.1);
+  box-shadow: 0 0 10px #00aaff;
+}
+
+.edit-icon-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+}
+
+.edit-profile-icon-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  margin-top: -1rem;
+  font-size: 1rem;
+  font-weight: var(--font-weight-medium);
+  transition: all 0.3s ease;
+}
+
+.edit-profile-icon-btn:hover {
+  background-color: #218838;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(40, 167, 69, 0.2);
+}
+
+.file-input {
+  display: none;
+}
+
+/* Form Styling (dark inputs with focus effects) */
+.form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.input-label {
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+  color: #aaa;
+  text-align: left;
+  font-weight: var(--font-weight-medium);
+}
+
+.form input,
+.form textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #444;
+  border-radius: 12px;
+  background: #181818;
+  color: #e0e0e0;
+  font-size: 1rem;
+  font-family: var(--font-primary);
+  box-sizing: border-box;
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.form input:focus,
+.form textarea:focus {
+  outline: none;
+  border-color: #00aaff;
+  box-shadow: 0 0 5px rgba(0, 170, 255, 0.3);
+}
+
+.form textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.form input:disabled,
+.form textarea:disabled {
+  color: #e0e0e0;
+  cursor: default;
+  box-shadow: none;
+}
+
+.form textarea:disabled {
+  min-height: 100px;
+}
+
+/* View Mode Display Fields (styled like application cards with hover) */
+.display-field {
+  width: 100%;
+  padding: 0.75rem;
+  background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+  border: 1px solid #4b5563;
+  border-radius: 12px;
+  font-size: 1rem;
+  color: #e0e0e0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+}
+
+.display-field:hover {
+  border-color: #60a5fa;
+  box-shadow: 0 8px 20px rgba(96, 165, 250, 0.15);
+}
+
+.bio-display {
+  min-height: 100px;
+}
+
+/* Button Group (with gradients, hover effects, and shine animation like action buttons) */
+.button-group {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+  margin-top: 1.5rem;
+}
+
+.button-group button {
+  flex: 1;
+  padding: 0.75rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  font-weight: var(--font-weight-medium);
+  color: #fff;
+}
+
+.button-group button[type='submit'],
+.button-group button.save-button {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+}
+
+.button-group button.cancel-button {
+  background: linear-gradient(135deg, #6c757d 0%, #4b5563 100%);
+}
+
+.button-group button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.1);
+}
+
+.button-group button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.button-group button:hover::before {
+  left: 100%;
+}
+
+/* Single Edit Button in View Mode (green gradient like apply buttons) */
+.form button:not(.button-group button) {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  font-weight: var(--font-weight-medium);
+}
+
+.form button:not(.button-group button):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(40, 167, 69, 0.1);
+}
+
+.form button:not(.button-group button)::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.form button:not(.button-group button):hover::before {
+  left: 100%;
+}
+
+/* Responsive Adjustments (for smaller screens) */
+@media (max-width: 768px) {
+  .profile-setup {
+    padding: 1rem;
+    padding-top: 80px;
+    max-width: 100%;
+    border-radius: 0;
+  }
+
+  .circle {
+    width: 120px;
+    height: 120px;
+  }
+
+  .edit-icon {
+    width: 35px;
+    height: 35px;
+  }
+
+  .pencil img {
+    width: 18px;
+    height: 18px;
+  }
+
+  .button-group {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+}
