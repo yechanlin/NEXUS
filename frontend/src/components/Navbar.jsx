@@ -32,7 +32,11 @@ const Navbar = () => {
         <NavLink to="/recruiter" className="nav-link" activeClassName="active">
           <FiUsers /> <span>Manage Projects</span>
         </NavLink>
-        <NavLink to="/my-projects" className="nav-link" activeClassName="active">
+        <NavLink
+          to="/my-projects"
+          className="nav-link"
+          activeClassName="active"
+        >
           <FiArchive /> <span>My Projects</span>
         </NavLink>
       </div>
@@ -40,12 +44,20 @@ const Navbar = () => {
         <NavLink to="/create-project" className="create-project-btn">
           <FiPlusSquare /> <span>Create Project</span>
         </NavLink>
-        <div className="notification-bell-wrapper" style={{ position: 'relative', marginRight: '1rem' }}>
+        <div
+          className="notification-bell-wrapper"
+          style={{ position: 'relative', marginRight: '1rem' }}
+        >
           <button
             className="notification-bell"
             onClick={() => setShowDropdown((prev) => !prev)}
             aria-label="Notifications"
-            style={{ background: 'none', border: 'none', cursor: 'pointer', position: 'relative' }}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              position: 'relative',
+            }}
           >
             <FiBell size={22} />
             {/* Unread badge will be handled in NotificationDropdown for now */}
@@ -56,10 +68,12 @@ const Navbar = () => {
             </div>
           )}
         </div>
-        <div className="user-avatar">A</div>
+        <NavLink to="/profile-edit" className="user-avatar">
+          A
+        </NavLink>
       </div>
     </nav>
   );
 };
 
-export default Navbar; 
+export default Navbar;

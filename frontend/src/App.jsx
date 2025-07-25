@@ -13,6 +13,7 @@ import MyProjects from './pages/MyProjects';
 import Recruiter from './pages/recruiter';
 import Searcher from './pages/searcher';
 import Navbar from './components/Navbar';
+import ProfileEdit from './pages/ProfileEdit';
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function AppContent() {
           <Route path="/my-projects" element={<MyProjects />} />
           <Route path="/recruiter" element={<Recruiter />} />
           <Route path="/searcher" element={<Searcher />} />
+          <Route path="/profile-edit" element={<ProfileEdit />} />
         </Routes>
       </main>
     </>
