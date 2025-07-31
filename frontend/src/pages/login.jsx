@@ -1,40 +1,51 @@
 import '../styles/login.css';
 import { Link, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { API_ENDPOINTS } from '../config/api';
+import { AuthContext } from '../context/AuthContext';
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
   const [formData, setFormData] = useState({
     email: '',
-    password: ''
+    password: '',
   });
   const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    
+
     try {
       console.log('Attempting login with:', API_ENDPOINTS.login);
       console.log('Login data:', formData);
-      
+
       const response = await fetch(API_ENDPOINTS.login, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          Accept: 'application/json',
         },
         mode: 'cors',
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
       });
 
-      console.log('Response status:', response.status);
+      // console.log('Response status:', response.status);
       const data = await response.json();
-      console.log('Response data:', data);
+      // console.log('Response data:', data);
 
       if (data.status === 'success' && data.token) {
+        // Store token in localStorage
         localStorage.setItem('token', data.token);
+
+        // Update user state in context with user data and token
+        const userData = {
+          ...data.data.user,
+          token: data.token,
+        };
+
+        login(userData);
         navigate('/mainPage');
       } else {
         setError(data.message || 'Login failed');
@@ -57,7 +68,9 @@ const Login = () => {
             type="email"
             placeholder="  Email"
             value={formData.email}
-            onChange={(e) => setFormData({...formData, email: e.target.value})}
+            onChange={(e) =>
+              setFormData({ ...formData, email: e.target.value })
+            }
             required
           />
           <input
@@ -65,7 +78,9 @@ const Login = () => {
             type="password"
             placeholder="  Password"
             value={formData.password}
-            onChange={(e) => setFormData({...formData, password: e.target.value})}
+            onChange={(e) =>
+              setFormData({ ...formData, password: e.target.value })
+            }
             required
           />
           <button className="loginField field" onClick={handleSubmit}>

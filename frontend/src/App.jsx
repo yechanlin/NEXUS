@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import {
   BrowserRouter as Router,
   Routes,
@@ -14,11 +15,34 @@ import Recruiter from './pages/recruiter';
 import Searcher from './pages/searcher';
 import Navbar from './components/Navbar';
 import ProfileEdit from './pages/ProfileEdit';
+import { AuthContext } from './context/AuthContext';
 
 function App() {
+  const [user, setUser] = useState(null);
+
+  // Load user from localStorage on app start
+  useEffect(() => {
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
+  }, []);
+
+  const login = (userData) => {
+    setUser(userData);
+    localStorage.setItem('user', JSON.stringify(userData));
+  };
+
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem('user');
+  };
+
   return (
     <Router>
-      <AppContent />
+      <AuthContext.Provider value={{ user, setUser, login, logout }}>
+        <AppContent />
+      </AuthContext.Provider>
     </Router>
   );
 }
