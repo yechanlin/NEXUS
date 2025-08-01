@@ -8,5 +8,42 @@ export const useUser = () => {
     throw new Error('useUser must be used within an AuthContext.Provider');
   }
 
-  return context;
+  const {
+    user,
+    setUser,
+    profileData,
+    setProfileData,
+    fetchUserProfile,
+    updateProfileData,
+  } = context;
+
+  const addUser = (userData) => {
+    setUser(userData);
+    try {
+      localStorage.setItem('user', JSON.stringify(userData));
+    } catch (error) {
+      console.error('Error storing user data:', error);
+    }
+  };
+
+  const removeUser = () => {
+    setUser(null);
+    setProfileData(null);
+    try {
+      localStorage.removeItem('user');
+    } catch (error) {
+      console.error('Error removing user data:', error);
+    }
+  };
+
+  return {
+    user,
+    setUser,
+    addUser,
+    removeUser,
+    profileData,
+    setProfileData,
+    fetchUserProfile,
+    updateProfileData,
+  };
 };

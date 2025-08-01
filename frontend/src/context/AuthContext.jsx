@@ -5,4 +5,8 @@ export const AuthContext = createContext({
   setUser: () => {},
   login: () => {},
   logout: () => {},
+  profileData: null,
+  setProfileData: () => {},
+  fetchUserProfile: () => {},
+  updateProfileData: () => {},
 });

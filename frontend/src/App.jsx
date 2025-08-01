@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   BrowserRouter as Router,
   Routes,
@@ -16,9 +16,11 @@ import Searcher from './pages/searcher';
 import Navbar from './components/Navbar';
 import ProfileEdit from './pages/ProfileEdit';
 import { AuthContext } from './context/AuthContext';
+import { API_ENDPOINTS } from './config/api';
 
 function App() {
   const [user, setUser] = useState(null);
+  const [profileData, setProfileData] = useState(null);
 
   // Load user from localStorage on app start
   useEffect(() => {
@@ -28,19 +30,75 @@ function App() {
     }
   }, []);
 
-  const login = (userData) => {
+  // Function to fetch complete user profile - memoized to prevent infinite loops
+  const fetchUserProfile = useCallback(async (userId, token) => {
+    try {
+      const response = await fetch(`${API_ENDPOINTS.users}/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const profile = {
+          profileImage: data.data.doc.profilePicture || '',
+          userName: data.data.doc.userName || '',
+          dateOfBirth: data.data.doc.dateOfBirth || '',
+          school: data.data.doc.school || '',
+          fieldOfStudy: data.data.doc.fieldOfStudy || '',
+          bio: data.data.doc.bio || '',
+        };
+        setProfileData(profile);
+        return profile;
+      }
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+    }
+    return null;
+  }, []);
+
+  // Function to update profile data - memoized to prevent infinite loops
+  const updateProfileData = useCallback(
+    (newProfileData) => {
+      setProfileData(newProfileData);
+      // Also update user context if userName changed
+      if (newProfileData.userName && user) {
+        const updatedUser = { ...user, userName: newProfileData.userName };
+        setUser(updatedUser);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+      }
+    },
+    [user],
+  );
+
+  const login = useCallback((userData) => {
     setUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));
-  };
+    setProfileData(null); // Reset profile data on new login
+  }, []);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     setUser(null);
+    setProfileData(null);
     localStorage.removeItem('user');
-  };
+  }, []);
 
   return (
     <Router>
-      <AuthContext.Provider value={{ user, setUser, login, logout }}>
+      <AuthContext.Provider
+        value={{
+          user,
+          setUser,
+          login,
+          logout,
+          profileData,
+          setProfileData,
+          fetchUserProfile,
+          updateProfileData,
+        }}
+      >
         <AppContent />
       </AuthContext.Provider>
     </Router>

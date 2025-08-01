@@ -35,7 +35,9 @@
   padding: 0.5rem 1rem;
   border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.3s, color 0.3s;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
 }
 
 .nav-links a:hover,
@@ -63,8 +65,12 @@
   padding: 0.5rem 1rem;
   border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 0 5px #00aaff, 0 0 10px #00aaff;
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
+  box-shadow:
+    0 0 5px #00aaff,
+    0 0 10px #00aaff;
   text-decoration: none;
   display: flex;
   align-items: center;
@@ -73,20 +79,40 @@
 
 .create-project-btn:hover {
   background-color: #00aaff;
-  box-shadow: 0 0 10px #00aaff, 0 0 20px #00aaff;
+  box-shadow:
+    0 0 10px #00aaff,
+    0 0 20px #00aaff;
 }
 
 .user-avatar {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-color: #333;
   display: flex;
-  justify-content: center;
   align-items: center;
-  color: #fff;
+  justify-content: center;
+  overflow: hidden;
+  background-color: #333;
+  color: white;
   font-weight: bold;
-  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.user-avatar:hover {
+  background-color: #00aaff;
+  box-shadow: 0 0 10px #00aaff;
+}
+
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-initial {
+  font-size: 16px;
+  font-weight: 600;
 }
 
 .notification-bell-wrapper {
@@ -116,7 +142,7 @@
   padding: 2px 6px;
   font-weight: bold;
   z-index: 2;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
 }
 
 .notification-dropdown {
@@ -128,7 +154,7 @@
   background: #23272f;
   color: #fff;
   border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
   z-index: 100;
   overflow: hidden;
   font-size: 0.97rem;
@@ -204,7 +230,8 @@
 .timestamp {
   color: #888;
 }
-.loading, .empty {
+.loading,
+.empty {
   padding: 1.2rem;
   text-align: center;
   color: #b0b8c9;
@@ -216,4 +243,4 @@
     max-width: 98vw;
     right: -30vw;
   }
-} 
+}

@@ -1,7 +1,15 @@
 import { useState } from 'react';
 
-export const useLocalStorage = () => {
-  const [value, setValue] = useState(null);
+export const useLocalStorage = (key, initialValue = null) => {
+  const [value, setValue] = useState(() => {
+    try {
+      const item = localStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
+    } catch (error) {
+      console.error('Error reading from localStorage:', error);
+      return initialValue;
+    }
+  });
 
   const setItem = (newValue) => {
     try {
@@ -13,21 +21,23 @@ export const useLocalStorage = () => {
       console.error('Error writing to localStorage:', error);
     }
   };
-  const getItem = () => {
+
+  const getItem = (itemKey = key) => {
     try {
-      const item = localStorage.getItem(key);
+      const item = localStorage.getItem(itemKey);
       const parsedValue = item ? JSON.parse(item) : initialValue;
-      setValue(parsedValue);
+      if (itemKey === key) setValue(parsedValue);
       return parsedValue;
     } catch (error) {
       console.error('Error reading from localStorage:', error);
       return initialValue;
     }
   };
-  const removeItem = (key) => {
+
+  const removeItem = (itemKey = key) => {
     try {
-      localStorage.removeItem(key);
-      setValue(null);
+      localStorage.removeItem(itemKey);
+      if (itemKey === key) setValue(null);
     } catch (error) {
       console.error('Error removing item from localStorage:', error);
     }
