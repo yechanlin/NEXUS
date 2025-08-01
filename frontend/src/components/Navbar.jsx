@@ -1,21 +1,52 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
   FiGrid,
-  FiUser,
-  FiBookmark,
   FiPlusSquare,
   FiArchive,
   FiUsers,
   FiSearch,
   FiBell,
 } from 'react-icons/fi';
+import { AuthContext } from '../context/AuthContext';
 import NotificationDropdown from './NotificationDropdown';
 import './../styles/navbar.css';
 
 const Navbar = () => {
+  const { user, profileData, fetchUserProfile } = useContext(AuthContext);
   const [showDropdown, setShowDropdown] = useState(false);
   // unreadCount will be handled in NotificationDropdown and passed up if needed
+
+  const profileFetched = useRef(false); // Track if profile has been fetched
+
+  // Fetch profile data when user is available and profile data is not loaded
+  useEffect(() => {
+    if (user?.id && user?.token && !profileData && !profileFetched.current) {
+      profileFetched.current = true; // Mark as fetching to prevent multiple calls
+      fetchUserProfile(user.id, user.token).catch(() => {
+        profileFetched.current = false; // Reset on error to allow retry
+      });
+    }
+  }, [user?.id, user?.token, profileData, fetchUserProfile]);
+
+  // Reset the fetch flag when user changes
+  useEffect(() => {
+    profileFetched.current = false;
+  }, [user?.id]);
+
+  // Function to get user initials
+  const getUserInitial = () => {
+    if (profileData?.userName) {
+      return profileData.userName.charAt(0).toUpperCase();
+    }
+    if (user?.userName) {
+      return user.userName.charAt(0).toUpperCase();
+    }
+    if (user?.email) {
+      return user.email.charAt(0).toUpperCase();
+    }
+    return 'U';
+  };
 
   return (
     <nav className="navbar">
@@ -32,7 +63,11 @@ const Navbar = () => {
         <NavLink to="/recruiter" className="nav-link" activeClassName="active">
           <FiUsers /> <span>Manage Projects</span>
         </NavLink>
-        <NavLink to="/my-projects" className="nav-link" activeClassName="active">
+        <NavLink
+          to="/my-projects"
+          className="nav-link"
+          activeClassName="active"
+        >
           <FiArchive /> <span>My Projects</span>
         </NavLink>
       </div>
@@ -40,12 +75,20 @@ const Navbar = () => {
         <NavLink to="/create-project" className="create-project-btn">
           <FiPlusSquare /> <span>Create Project</span>
         </NavLink>
-        <div className="notification-bell-wrapper" style={{ position: 'relative', marginRight: '1rem' }}>
+        <div
+          className="notification-bell-wrapper"
+          style={{ position: 'relative', marginRight: '1rem' }}
+        >
           <button
             className="notification-bell"
             onClick={() => setShowDropdown((prev) => !prev)}
             aria-label="Notifications"
-            style={{ background: 'none', border: 'none', cursor: 'pointer', position: 'relative' }}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              position: 'relative',
+            }}
           >
             <FiBell size={22} />
             {/* Unread badge will be handled in NotificationDropdown for now */}
@@ -56,10 +99,20 @@ const Navbar = () => {
             </div>
           )}
         </div>
-        <div className="user-avatar">A</div>
+        <NavLink to="/profile-edit" className="user-avatar">
+          {profileData?.profileImage ? (
+            <img
+              src={profileData.profileImage}
+              alt="Profile"
+              className="avatar-image"
+            />
+          ) : (
+            <span className="avatar-initial">{getUserInitial()}</span>
+          )}
+        </NavLink>
       </div>
     </nav>
   );
 };
 
-export default Navbar; 
+export default Navbar;

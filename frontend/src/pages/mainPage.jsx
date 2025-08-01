@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import '../styles/mainPage.css';
 import '../styles/navbar.css';
 import SwipeCard from '../components/SwipeCard';
-import { FiUser, FiUsers, FiBookmark, FiGrid } from 'react-icons/fi';
+import { TbArrowBack } from 'react-icons/tb';
 import { API_ENDPOINTS } from '../config/api';
-import { useNavigate } from 'react-router-dom';
 
 const MainPage = () => {
   const [projects, setProjects] = useState([]);
@@ -14,9 +13,9 @@ const MainPage = () => {
     category: '',
     projectType: '',
     skills: [],
-    maxDistance: 50
+    maxDistance: 50,
   });
-  const navigate = useNavigate();
+  const [swipeHistory, setSwipeHistory] = useState([]);
 
   useEffect(() => {
     fetchProjects();
@@ -35,13 +34,13 @@ const MainPage = () => {
       const response = await fetch(`${API_ENDPOINTS.projects}/fetch`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
       });
 
       console.log('Response status:', response.status);
-      
+
       if (response.status === 401) {
         localStorage.removeItem('token');
         window.location.href = '/login';
@@ -51,7 +50,7 @@ const MainPage = () => {
       const data = await response.json();
       console.log('Projects data:', data);
 
-      if (data.status === "success" && Array.isArray(data.data?.projects)) {
+      if (data.status === 'success' && Array.isArray(data.data?.projects)) {
         setProjects(data.data.projects);
         setCurrentIndex(0);
       } else {
@@ -72,22 +71,27 @@ const MainPage = () => {
         await fetch(`${API_ENDPOINTS.projects}/${currentProject._id}/apply`, {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
         });
       } else if (direction === 'left') {
         await fetch(API_ENDPOINTS.skipProject(currentProject._id), {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
         });
       }
+      // Add to swipe history
+      setSwipeHistory((prev) => [
+        ...prev,
+        { projectIndex: currentIndex, direction },
+      ]);
       // Move to next project
       if (currentIndex < projects.length - 1) {
-        setCurrentIndex(prev => prev + 1);
+        setCurrentIndex((prev) => prev + 1);
       } else {
         // Fetch more projects when we run out
         fetchProjects();
@@ -97,22 +101,142 @@ const MainPage = () => {
     }
   };
 
+  // Handle save (upward swipe)
+  const handleSave = async () => {
+    const currentProject = projects[currentIndex];
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(
+        `${API_ENDPOINTS.projects}/${currentProject._id}/save`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+      const data = await response.json();
+      if (data.status === 'success') {
+        console.log('Project saved!');
+      } else {
+        console.error('Save failed:', data);
+      }
+    } catch (error) {
+      console.error('Error saving project:', error);
+    }
+    // Advance card (like a swipe)
+    setSwipeHistory((prev) => [
+      ...prev,
+      { projectIndex: currentIndex, direction: 'up' },
+    ]);
+    if (currentIndex < projects.length - 1) {
+      setCurrentIndex((prev) => prev + 1);
+    } else {
+      fetchProjects();
+    }
+  };
+
+  // Handle going back to previous card
+  const handleBack = () => {
+    if (swipeHistory.length === 0) return;
+    const last = swipeHistory[swipeHistory.length - 1];
+    setCurrentIndex(last.projectIndex);
+    setSwipeHistory((prev) => prev.slice(0, -1));
+  };
+
   return (
     <div className="main-page">
       <main className="main-content">
+        {/* Filter UI */}
+        <div className="filter-container">
+          <label className="filter-label">
+            <select
+              value={filters.category}
+              onChange={(e) =>
+                setFilters((f) => ({ ...f, category: e.target.value }))
+              }
+              className="filter-select"
+            >
+              <option value="">Category</option>
+              <option value="Software">Software</option>
+              <option value="Design">Design</option>
+              <option value="Research">Research</option>
+              <option value="Business">Business</option>
+              <option value="Competition">Competition</option>
+            </select>
+          </label>
+          <label className="filter-label">
+            <select
+              value={filters.projectType}
+              onChange={(e) =>
+                setFilters((f) => ({ ...f, projectType: e.target.value }))
+              }
+              className="filter-select"
+            >
+              <option value="">Project Type</option>
+              <option value="Academic">Academic</option>
+              <option value="Professional">Professional</option>
+              <option value="Hobby">Hobby</option>
+              <option value="Startup">Startup</option>
+              <option value="Hackathon">Hackathon</option>
+            </select>
+          </label>
+        </div>
+        {/* End Filter UI */}
+        {/* Back Button */}
+        <div className="back-button-container">
+          <button
+            className="back-button"
+            onClick={handleBack}
+            disabled={swipeHistory.length === 0}
+          >
+            <TbArrowBack size={24} />
+          </button>
+        </div>
         {loading ? (
           <div className="loading-spinner">Loading projects...</div>
         ) : projects.length > 0 ? (
           <div className="card-stack">
             {console.log('Current index:', currentIndex)}
             {console.log('Current project:', projects[currentIndex])}
-            {currentIndex < projects.length && (
-              <SwipeCard
-                key={projects[currentIndex]._id}
-                project={projects[currentIndex]}
-                onSwipe={handleSwipe}
-              />
-            )}
+            {/* Filter projects before rendering */}
+            {(() => {
+              const filteredProjects = projects.filter((project) => {
+                // Category filter
+                if (filters.category && project.category !== filters.category)
+                  return false;
+                // Project type filter
+                if (
+                  filters.projectType &&
+                  project.projectType !== filters.projectType
+                )
+                  return false;
+                return true;
+              });
+              if (filteredProjects.length === 0) {
+                return (
+                  <div className="no-projects">
+                    <h3>No projects match your filters</h3>
+                  </div>
+                );
+              }
+              // Adjust currentIndex if out of bounds
+              const safeIndex = Math.min(
+                currentIndex,
+                filteredProjects.length - 1,
+              );
+              return (
+                safeIndex >= 0 && (
+                  <SwipeCard
+                    key={filteredProjects[safeIndex]._id}
+                    project={filteredProjects[safeIndex]}
+                    onSwipe={handleSwipe}
+                    onSave={handleSave}
+                  />
+                )
+              );
+            })()}
           </div>
         ) : (
           <div className="no-projects">
