@@ -11,6 +11,7 @@ const ProfileSetup = () => {
     fieldOfStudy: '',
     bio: '',
   });
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -113,7 +114,9 @@ const ProfileSetup = () => {
             value={formData.bio}
             onChange={handleChange}
           ></textarea>
-          <button type="submit" onClick={handleSubmit}>Create Profile</button>
+          <button type="submit" onClick={handleSubmit}>
+            Create Profile
+          </button>
         </form>
       </div>
     </>
