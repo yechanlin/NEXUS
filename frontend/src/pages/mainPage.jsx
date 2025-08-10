@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import '../styles/mainPage.css';
 import '../styles/navbar.css';
 import SwipeCard from '../components/SwipeCard';
@@ -6,6 +6,8 @@ import { TbArrowBack } from 'react-icons/tb';
 import { IoChevronDown } from 'react-icons/io5';
 import { IoFilter } from 'react-icons/io5';
 import { API_ENDPOINTS } from '../config/api';
+import { ALL_AVAILABLE_SKILLS } from '../constants/skills';
+import { useMapsLibrary } from '@vis.gl/react-google-maps';
 
 const MainPage = () => {
   const [projects, setProjects] = useState([]);
@@ -21,9 +23,109 @@ const MainPage = () => {
   });
   const [swipeHistory, setSwipeHistory] = useState([]);
   const [isFilterExpanded, setIsFilterExpanded] = useState(false);
+  const locationInputRef = useRef(null);
+  const placesLib = useMapsLibrary('places');
+  const skillsInputRef = useRef(null);
+  const skillsSuggestionsContainerRef = useRef(null);
+  const [skillSuggestions, setSkillSuggestions] = useState([]);
+  const [showSkillSuggestions, setShowSkillSuggestions] = useState(false);
 
   useEffect(() => {
     fetchProjects();
+  }, []);
+
+  // Initialize Google Places Autocomplete for Location filter
+  useEffect(() => {
+    if (
+      !placesLib ||
+      !window.google?.maps?.places ||
+      !locationInputRef.current
+    ) {
+      return;
+    }
+
+    let autocomplete;
+    try {
+      autocomplete = new window.google.maps.places.Autocomplete(
+        locationInputRef.current,
+        {
+          fields: ['geometry', 'name', 'formatted_address'],
+          types: ['address'],
+        },
+      );
+
+      const listener = autocomplete.addListener('place_changed', () => {
+        const place = autocomplete.getPlace();
+        const selected = place?.formatted_address || place?.name || '';
+        if (selected) {
+          setFilters((f) => ({ ...f, location: selected }));
+        }
+      });
+
+      return () => {
+        if (window.google?.maps?.event && listener) {
+          window.google.maps.event.removeListener(listener);
+        }
+      };
+    } catch (error) {
+      console.error('Error initializing location autocomplete:', error);
+    }
+  }, [placesLib]);
+
+  // Skills suggestions logic
+  const generateSkillSuggestions = (inputString) => {
+    const parts = inputString.split(',').map((s) => s.trim());
+    const lastPart = (parts[parts.length - 1] || '').toLowerCase();
+
+    if (lastPart.length < 2) {
+      setSkillSuggestions([]);
+      setShowSkillSuggestions(false);
+      return;
+    }
+
+    const currentSkills = parts.slice(0, -1).map((s) => s.toLowerCase());
+    const filtered = ALL_AVAILABLE_SKILLS.filter((skill) => {
+      const lowerCaseSkill = skill.toLowerCase();
+      return (
+        lowerCaseSkill.includes(lastPart) &&
+        !currentSkills.includes(lowerCaseSkill)
+      );
+    }).slice(0, 7);
+
+    setSkillSuggestions(filtered);
+    setShowSkillSuggestions(filtered.length > 0);
+  };
+
+  const handleSkillSuggestionClick = (suggestedSkill) => {
+    const currentInput = filters.skillsRequired || '';
+    const parts = currentInput.split(',').map((s) => s.trim());
+    const lastPartIndex = Math.max(parts.length - 1, 0);
+
+    parts[lastPartIndex] = suggestedSkill;
+
+    let newSkillsString = parts.filter(Boolean).join(', ');
+    if (suggestedSkill && !newSkillsString.endsWith(', ')) {
+      newSkillsString += ', ';
+    }
+
+    setFilters((prev) => ({ ...prev, skillsRequired: newSkillsString }));
+    setSkillSuggestions([]);
+    setShowSkillSuggestions(false);
+    skillsInputRef.current?.focus();
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        skillsInputRef.current &&
+        !skillsInputRef.current.contains(event.target) &&
+        !skillsSuggestionsContainerRef.current?.contains(event.target)
+      ) {
+        setShowSkillSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const fetchProjects = async () => {
@@ -267,6 +369,7 @@ const MainPage = () => {
                     <input
                       type="text"
                       placeholder="Enter location..."
+                      ref={locationInputRef}
                       value={filters.location}
                       onChange={(e) =>
                         setFilters((f) => ({ ...f, location: e.target.value }))
@@ -279,18 +382,39 @@ const MainPage = () => {
                     <label className="block text-sm font-medium text-gray-300">
                       Skills
                     </label>
-                    <input
-                      type="text"
-                      placeholder="Enter skills..."
-                      value={filters.skillsRequired}
-                      onChange={(e) =>
-                        setFilters((f) => ({
-                          ...f,
-                          skillsRequired: e.target.value,
-                        }))
-                      }
-                      className="w-full rounded-xl border border-gray-600 bg-gray-900 px-4 py-3 text-white placeholder-gray-400 transition-colors focus:border-blue-400 focus:outline-none"
-                    />
+                    <div className="relative">
+                      <input
+                        ref={skillsInputRef}
+                        type="text"
+                        placeholder="Enter skills..."
+                        value={filters.skillsRequired}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setFilters((f) => ({ ...f, skillsRequired: value }));
+                          generateSkillSuggestions(value);
+                        }}
+                        onFocus={() =>
+                          generateSkillSuggestions(filters.skillsRequired)
+                        }
+                        className="w-full rounded-xl border border-gray-600 bg-gray-900 px-4 py-3 text-white placeholder-gray-400 transition-colors focus:border-blue-400 focus:outline-none"
+                      />
+                      {showSkillSuggestions && skillSuggestions.length > 0 && (
+                        <div
+                          ref={skillsSuggestionsContainerRef}
+                          className="absolute z-20 mt-2 max-h-60 w-full overflow-auto rounded-xl border border-gray-700 bg-gray-800 shadow-xl"
+                        >
+                          {skillSuggestions.map((skill) => (
+                            <div
+                              key={skill}
+                              onClick={() => handleSkillSuggestionClick(skill)}
+                              className="cursor-pointer px-4 py-2 text-sm text-gray-200 hover:bg-gray-700"
+                            >
+                              {skill}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   {/* Max Members */}
