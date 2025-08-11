@@ -242,10 +242,36 @@ const projectController = {
       .limit(limit);
 
     // Extract user's applications from each project
-    const userApplications = projects.map(project => {
+    const User = (await import('../models/User.js')).default;
+    const userApplications = await Promise.all(projects.map(async project => {
       const application = project.applications.find(app =>
         app.user.toString() === userId.toString()
       );
+      let creator = project.creator;
+
+      // If creator is not populated, fetch it explicitly
+      if (!creator || !creator.userName) {
+        try {
+          creator = await User.findById(project.creator).select('userName profilePicture');
+          // If creator doesn't exist (deleted user), provide fallback data
+          if (!creator) {
+            creator = {
+              _id: project.creator,
+              userName: 'Deleted User',
+              profilePicture: null
+            };
+          }
+        } catch (error) {
+          console.error('Error fetching creator data:', error);
+          // Provide fallback data if there's an error
+          creator = {
+            _id: project.creator,
+            userName: 'Unknown User',
+            profilePicture: null
+          };
+        }
+      }
+
       return {
         project: {
           _id: project._id,
@@ -253,7 +279,7 @@ const projectController = {
           description: project.description,
           category: project.category,
           projectType: project.projectType,
-          creator: project.creator
+          creator: creator
         },
         application: {
           _id: application._id,
@@ -261,7 +287,7 @@ const projectController = {
           appliedAt: application.appliedAt
         }
       };
-    });
+    }));
 
     const total = await Project.countDocuments({
       'applications.user': userId
