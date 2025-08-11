@@ -17,6 +17,7 @@ export const API_ENDPOINTS = {
   updateApplicationStatus: (projectId, applicationId) =>
     `${API_BASE_URL}/api/projects/${projectId}/applications/${applicationId}`,
   skipProject: (projectId) => `${API_BASE_URL}/api/projects/${projectId}/skip`,
+  notifications: `${API_BASE_URL}/api/users/notifications`,
   // Add other endpoints as needed
 };
 

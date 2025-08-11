@@ -99,6 +99,34 @@ const projectController = {
     });
 
     await project.save();
+
+    // Send notification to project creator about new application
+    const User = (await import('../models/User.js')).default;
+    const creator = await User.findById(project.creator);
+    if (creator) {
+      creator.notifications.push({
+        type: 'new_application',
+        message: `You received a new application for '${project.title}' from ${req.user.userName || 'a user'}.`,
+        relatedProject: project._id,
+        read: false,
+        timestamp: new Date()
+      });
+      await creator.save();
+    }
+
+    // Send confirmation notification to applicant
+    const applicant = await User.findById(req.user._id);
+    if (applicant) {
+      applicant.notifications.push({
+        type: 'application_submitted',
+        message: `Your application for '${project.title}' has been submitted successfully.`,
+        relatedProject: project._id,
+        read: false,
+        timestamp: new Date()
+      });
+      await applicant.save();
+    }
+
     res.status(200).json({
       status: "success",
       message: "Application submitted successfully"
@@ -113,10 +141,27 @@ const projectController = {
     if (!user) {
       return next(new AppError('User not found', 404));
     }
+
+    // Get project details for notification
+    const project = await Project.findById(projectId);
+
     if (!user.skippedProjects.includes(projectId)) {
       user.skippedProjects.push(projectId);
       await user.save();
     }
+
+    // Send notification to user about skipped project (optional - for user's own record)
+    if (project) {
+      user.notifications.push({
+        type: 'project_skipped',
+        message: `You skipped '${project.title}'. You can find it again in your project history.`,
+        relatedProject: project._id,
+        read: false,
+        timestamp: new Date()
+      });
+      await user.save();
+    }
+
     res.status(200).json({
       status: "success",
       message: "Project skipped"

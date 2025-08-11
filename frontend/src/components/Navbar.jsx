@@ -10,12 +10,13 @@ import {
 } from 'react-icons/fi';
 import { AuthContext } from '../context/AuthContext';
 import NotificationDropdown from './NotificationDropdown';
+import { API_ENDPOINTS } from '../config/api';
 import './../styles/navbar.css';
 
 const Navbar = () => {
   const { user, profileData, fetchUserProfile } = useContext(AuthContext);
   const [showDropdown, setShowDropdown] = useState(false);
-  // unreadCount will be handled in NotificationDropdown and passed up if needed
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const profileFetched = useRef(false); // Track if profile has been fetched
 
@@ -33,6 +34,31 @@ const Navbar = () => {
   useEffect(() => {
     profileFetched.current = false;
   }, [user?.id]);
+
+  // Fetch initial notification count
+  useEffect(() => {
+    if (user?.token) {
+      fetchInitialNotificationCount();
+    }
+  }, [user?.token]);
+
+  const fetchInitialNotificationCount = async () => {
+    try {
+      const response = await fetch(API_ENDPOINTS.notifications, {
+        headers: {
+          'Authorization': `Bearer ${user.token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        const unreadCount = data.data.notifications.filter(notif => !notif.read).length;
+        setUnreadCount(unreadCount);
+      }
+    } catch (error) {
+      console.error('Error fetching notification count:', error);
+    }
+  };
 
   // Function to get user initials
   const getUserInitial = () => {
@@ -91,11 +117,16 @@ const Navbar = () => {
             }}
           >
             <FiBell size={22} />
-            {/* Unread badge will be handled in NotificationDropdown for now */}
+            {unreadCount > 0 && (
+              <span className="notification-badge">{unreadCount}</span>
+            )}
           </button>
           {showDropdown && (
             <div className="notification-dropdown">
-              <NotificationDropdown onClose={() => setShowDropdown(false)} />
+              <NotificationDropdown 
+                onClose={() => setShowDropdown(false)} 
+                onUnreadCountChange={setUnreadCount}
+              />
             </div>
           )}
         </div>

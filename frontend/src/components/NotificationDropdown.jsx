@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { API_ENDPOINTS, apiCall } from '../config/api';
-import { FiCheckCircle, FiInfo, FiXCircle } from 'react-icons/fi';
+import { FiCheckCircle, FiInfo, FiXCircle, FiX } from 'react-icons/fi';
 
-const NotificationDropdown = ({ onClose }) => {
+const NotificationDropdown = ({ onClose, onUnreadCountChange }) => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -18,6 +18,11 @@ const NotificationDropdown = ({ onClose }) => {
       const response = await apiCall('/api/users/notifications');
       if (response.status === 'success') {
         setNotifications(response.data.notifications);
+        // Calculate and pass unread count to parent
+        const unreadCount = response.data.notifications.filter(notif => !notif.read).length;
+        if (onUnreadCountChange) {
+          onUnreadCountChange(unreadCount);
+        }
       }
     } catch (error) {
       // Handle error
@@ -32,6 +37,10 @@ const NotificationDropdown = ({ onClose }) => {
         return <FiCheckCircle className="text-green-400 mr-2" />;
       case 'new_application':
         return <FiInfo className="text-blue-400 mr-2" />;
+      case 'application_submitted':
+        return <FiCheckCircle className="text-blue-400 mr-2" />;
+      case 'project_skipped':
+        return <FiX className="text-gray-400 mr-2" />;
       default:
         return <FiInfo className="text-gray-400 mr-2" />;
     }
