@@ -1,6 +1,6 @@
 import '../styles/login.css';
 import { Link, useNavigate } from 'react-router-dom';
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { API_ENDPOINTS } from '../config/api';
 import { AuthContext } from '../context/AuthContext';
 
@@ -12,6 +12,14 @@ const Login = () => {
     password: '',
   });
   const [error, setError] = useState('');
+
+  // Check if user is already logged in
+  useEffect(() => {
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) {
+      navigate('/mainPage');
+    }
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -62,6 +70,14 @@ const Login = () => {
         <div className="logo">
           <img src="/images/nexus_logo.png" alt="NEXUS Logo" />
         </div>
+        <div className="back-link">
+          <Link
+            to="/"
+            className="text-blue-400 transition-colors hover:text-blue-300"
+          >
+            ← Back to Home
+          </Link>
+        </div>
         <div className="userFields">
           <input
             className="field"
@@ -90,7 +106,7 @@ const Login = () => {
         </div>
         <div className="footer-container">
           <footer className="text-link">
-            Don't have an account? <Link to="/signup">Sign up here.</Link>
+            Don&apos;t have an account? <Link to="/signup">Sign up here.</Link>
           </footer>
         </div>
       </div>

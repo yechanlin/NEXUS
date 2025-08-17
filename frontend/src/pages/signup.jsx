@@ -69,6 +69,14 @@ const Signup = () => {
         <div className="logo">
           <img src="/images/nexus_logo.png" alt="NEXUS Logo" />
         </div>
+        <div className="back-link">
+          <Link
+            to="/"
+            className="text-blue-400 transition-colors hover:text-blue-300"
+          >
+            ← Back to Home
+          </Link>
+        </div>
         <div className="userFields">
           <input
             className="field"
@@ -114,7 +122,7 @@ const Signup = () => {
         </div>
         <div className="footer-container">
           <footer className="text-link">
-            Already have an account? <Link to="/">Log in here.</Link>
+            Already have an account? <Link to="/login">Log in here.</Link>
           </footer>
         </div>
       </div>

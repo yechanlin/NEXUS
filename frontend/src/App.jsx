@@ -5,6 +5,7 @@ import {
   Route,
   useLocation,
 } from 'react-router-dom';
+import LandingPage from './pages/LandingPage';
 import Signup from './pages/signup';
 import Login from './pages/login';
 import ProfileSetup from './pages/profilesetup';
@@ -107,7 +108,7 @@ function App() {
 
 function AppContent() {
   const location = useLocation();
-  const showNavbar = !['/', '/signup', '/profilesetup'].includes(
+  const showNavbar = !['/', '/landing', '/signup', '/profilesetup'].includes(
     location.pathname,
   );
 
@@ -116,7 +117,9 @@ function AppContent() {
       {showNavbar && <Navbar />}
       <main className="content-wrapper">
         <Routes>
-          <Route path="/" element={<Login />} />
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/landing" element={<LandingPage />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/profilesetup" element={<ProfileSetup />} />
           <Route path="/mainPage" element={<MainPage />} />
