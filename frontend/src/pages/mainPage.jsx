@@ -7,7 +7,7 @@ import { IoChevronDown } from 'react-icons/io5';
 import { IoFilter } from 'react-icons/io5';
 import { API_ENDPOINTS } from '../config/api';
 import { ALL_AVAILABLE_SKILLS } from '../constants/skills';
-import { useMapsLibrary } from '@vis.gl/react-google-maps';
+// import { useMapsLibrary } from '@vis.gl/react-google-maps'; // Disabled due to API key issues
 
 const MainPage = () => {
   const [projects, setProjects] = useState([]);
@@ -24,7 +24,7 @@ const MainPage = () => {
   const [swipeHistory, setSwipeHistory] = useState([]);
   const [isFilterExpanded, setIsFilterExpanded] = useState(false);
   const locationInputRef = useRef(null);
-  const placesLib = useMapsLibrary('places');
+  // const placesLib = useMapsLibrary('places'); // Disabled due to API key issues
   const skillsInputRef = useRef(null);
   const skillsSuggestionsContainerRef = useRef(null);
   const [skillSuggestions, setSkillSuggestions] = useState([]);
@@ -34,43 +34,21 @@ const MainPage = () => {
     fetchProjects();
   }, []);
 
-  // Initialize Google Places Autocomplete for Location filter
+  // Reset current index when filters change
   useEffect(() => {
-    if (
-      !placesLib ||
-      !window.google?.maps?.places ||
-      !locationInputRef.current
-    ) {
-      return;
-    }
+    setCurrentIndex(0);
+  }, [filters]);
 
-    let autocomplete;
-    try {
-      autocomplete = new window.google.maps.places.Autocomplete(
-        locationInputRef.current,
-        {
-          fields: ['geometry', 'name', 'formatted_address'],
-          types: ['address'],
-        },
-      );
+  // Google Places Autocomplete disabled due to API key issues
+  // Location input now works as pure manual input
 
-      const listener = autocomplete.addListener('place_changed', () => {
-        const place = autocomplete.getPlace();
-        const selected = place?.formatted_address || place?.name || '';
-        if (selected) {
-          setFilters((f) => ({ ...f, location: selected }));
-        }
-      });
+  // Handle manual location input changes
+  const handleLocationChange = (e) => {
+    const value = e.target.value;
+    console.log('Location input changed to:', value);
+    setFilters((f) => ({ ...f, location: value }));
+  };
 
-      return () => {
-        if (window.google?.maps?.event && listener) {
-          window.google.maps.event.removeListener(listener);
-        }
-      };
-    } catch (error) {
-      console.error('Error initializing location autocomplete:', error);
-    }
-  }, [placesLib]);
 
   // Skills suggestions logic
   const generateSkillSuggestions = (inputString) => {
@@ -368,12 +346,10 @@ const MainPage = () => {
                     </label>
                     <input
                       type="text"
-                      placeholder="Enter location..."
+                      placeholder="Enter location (e.g., New York, Remote, California)..."
                       ref={locationInputRef}
                       value={filters.location}
-                      onChange={(e) =>
-                        setFilters((f) => ({ ...f, location: e.target.value }))
-                      }
+                      onChange={handleLocationChange}
                       className="w-full rounded-xl border border-gray-600 bg-gray-900 px-4 py-3 text-white placeholder-gray-400 transition-colors focus:border-blue-400 focus:outline-none"
                     />
                   </div>
@@ -465,19 +441,88 @@ const MainPage = () => {
               console.log('Total projects:', projects.length);
               console.log('Sample project data:', projects[0]);
 
-              // TEMPORARILY DISABLE ALL FILTERS FOR TESTING
-              const filteredProjects = projects; // Show all projects without filtering
+              // Apply filters to projects
+              const filteredProjects = projects.filter((project) => {
+                // Category filter
+                if (filters.category && project.category !== filters.category) {
+                  return false;
+                }
+
+                // Project type filter
+                if (filters.projectType && project.projectType !== filters.projectType) {
+                  return false;
+                }
+
+                // Location filter (case-insensitive partial match)
+                if (filters.location && 
+                    !project.location.toLowerCase().includes(filters.location.toLowerCase())) {
+                  return false;
+                }
+
+                // Skills filter (check if any of the required skills match the filter)
+                if (filters.skills && filters.skills.length > 0) {
+                  const projectSkills = project.skillsRequired || [];
+                  const hasMatchingSkill = filters.skills.some(filterSkill => 
+                    projectSkills.some(projectSkill => 
+                      projectSkill.toLowerCase().includes(filterSkill.toLowerCase())
+                    )
+                  );
+                  if (!hasMatchingSkill) {
+                    return false;
+                  }
+                }
+
+                // Skills required filter (partial match)
+                if (filters.skillsRequired && 
+                    !project.skillsRequired.some(skill => 
+                      skill.toLowerCase().includes(filters.skillsRequired.toLowerCase())
+                    )) {
+                  return false;
+                }
+
+                // Max members filter
+                if (filters.maxMembers && project.maxMembers > parseInt(filters.maxMembers)) {
+                  return false;
+                }
+
+                return true;
+              });
 
               console.log(
-                'Filtered projects count (showing all):',
+                'Filtered projects count:',
                 filteredProjects.length,
               );
 
               if (filteredProjects.length === 0) {
+                const hasActiveFilters = Object.values(filters).some(value => 
+                  value !== '' && value !== null && value !== undefined && 
+                  (Array.isArray(value) ? value.length > 0 : true)
+                );
+                
                 return (
                   <div className="no-projects">
-                    <h3>No projects available</h3>
-                    <p>No projects found in the database</p>
+                    <h3>No projects found</h3>
+                    <p>
+                      {hasActiveFilters 
+                        ? "No projects match your current filters. Try adjusting your search criteria."
+                        : "No projects found in the database"
+                      }
+                    </p>
+                    {hasActiveFilters && (
+                      <button 
+                        className="refresh-button" 
+                        onClick={() => setFilters({
+                          category: '',
+                          projectType: '',
+                          skills: [],
+                          location: '',
+                          skillsRequired: '',
+                          maxMembers: '',
+                        })}
+                      >
+                        Clear Filters
+                      </button>
+                    )}
                   </div>
                 );
               }

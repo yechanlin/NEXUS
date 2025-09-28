@@ -111,5 +111,15 @@ const protect = catchAsync(async (req, res, next) => {
   }
 });
 
-const authController = { signup, login, protect };
+// Logout Controller (optional - for JWT tokens, logout is handled client-side)
+const logout = catchAsync(async (req, res, next) => {
+  // For JWT tokens, logout is typically handled client-side by removing the token
+  // This endpoint can be used for logging purposes or if you want to blacklist tokens
+  res.status(200).json({
+    status: 'success',
+    message: 'Logged out successfully'
+  });
+});
+
+const authController = { signup, login, logout, protect };
 export default authController;

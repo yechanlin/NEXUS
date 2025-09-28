@@ -84,6 +84,11 @@
     0 0 20px #00aaff;
 }
 
+.user-dropdown-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
 .user-avatar {
   width: 40px;
   height: 40px;
@@ -97,6 +102,8 @@
   font-weight: bold;
   text-decoration: none;
   transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
 }
 
 .user-avatar:hover {
@@ -113,6 +120,53 @@
 .avatar-initial {
   font-size: 16px;
   font-weight: 600;
+}
+
+.user-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  min-width: 160px;
+  z-index: 1001;
+  margin-top: 8px;
+}
+
+.user-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  color: #e0e0e0;
+  text-decoration: none;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-size: 14px;
+}
+
+.user-dropdown-item:hover {
+  background-color: #333;
+  color: #fff;
+}
+
+.user-dropdown-item:first-child {
+  border-radius: 8px 8px 0 0;
+}
+
+.user-dropdown-item:last-child {
+  border-radius: 0 0 8px 8px;
+}
+
+.user-dropdown-item svg {
+  width: 16px;
+  height: 16px;
 }
 
 .notification-bell-wrapper {
