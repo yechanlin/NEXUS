@@ -2,6 +2,95 @@ import { useState, useEffect, useContext, useRef } from 'react';
 import { FiEdit2 } from 'react-icons/fi';
 import { AuthContext } from '../context/AuthContext';
 import { API_ENDPOINTS } from '../config/api';
+import { US_UNIVERSITIES, FIELDS_OF_STUDY } from '../data/autocompleteData';
+import '../styles/profileEdit.css';
+
+// YYYY-MM-DD → MM/DD/YYYY
+const formatDisplayDate = (dateStr) => {
+  if (!dateStr) return '';
+  const [year, month, day] = dateStr.split('-');
+  if (!year || !month || !day) return dateStr;
+  return `${month}/${day}/${year}`;
+};
+
+// MM/DD/YYYY → YYYY-MM-DD for storage
+const parseDisplayDate = (display) => {
+  if (!display) return '';
+  const [month, day, year] = display.split('/');
+  if (!month || !day || !year) return display;
+  return `${year}-${month.padStart(2,'0')}-${day.padStart(2,'0')}`;
+};
+
+const getSuggestions = (list, query) => {
+  if (!query || query.length < 2) return [];
+  const q = query.toLowerCase();
+  return list.filter((item) => item.toLowerCase().includes(q)).slice(0, 8);
+};
+
+// Reusable autocomplete field
+const AutocompleteInput = ({ label, name, value, onChange, disabled, list }) => {
+  const [suggestions, setSuggestions] = useState([]);
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleChange = (e) => {
+    onChange(e);
+    const results = getSuggestions(list, e.target.value);
+    setSuggestions(results);
+    setOpen(results.length > 0);
+  };
+
+  const handleSelect = (item) => {
+    onChange({ target: { name, value: item } });
+    setSuggestions([]);
+    setOpen(false);
+  };
+
+  return (
+    <div className="profile-field-group" ref={containerRef} style={{ position: 'relative' }}>
+      <label className="input-label">{label}</label>
+      <input
+        type="text"
+        name={name}
+        value={value}
+        onChange={handleChange}
+        disabled={disabled}
+        autoComplete="off"
+        className="profile-input"
+        onFocus={() => {
+          if (!disabled) {
+            const results = getSuggestions(list, value);
+            setSuggestions(results);
+            setOpen(results.length > 0);
+          }
+        }}
+      />
+      {!disabled && open && (
+        <div className="school-suggestions-dropdown">
+          {suggestions.map((item) => (
+            <div
+              key={item}
+              className="school-suggestion-item"
+              onMouseDown={() => handleSelect(item)}
+            >
+              {item}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const ProfileEdit = () => {
   const { user, profileData, updateProfileData, fetchUserProfile } =
@@ -9,6 +98,7 @@ const ProfileEdit = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [dobDisplay, setDobDisplay] = useState('');
   const [initialData, setInitialData] = useState({
     profileImage: '',
     userName: '',
@@ -25,13 +115,12 @@ const ProfileEdit = () => {
     fieldOfStudy: '',
     bio: '',
   });
-  const dataLoaded = useRef(false); // Track if data has been loaded
+  const dataLoaded = useRef(false);
 
   useEffect(() => {
     const loadUserData = async () => {
       if (!user?.id || !user?.token || dataLoaded.current) return;
 
-      // If profile data is already available in context, use it
       if (profileData) {
         const userData = {
           profileImage: profileData.profileImage || '',
@@ -45,11 +134,11 @@ const ProfileEdit = () => {
         };
         setFormData(userData);
         setInitialData(userData);
+        setDobDisplay(formatDisplayDate(userData.dateOfBirth));
         dataLoaded.current = true;
         return;
       }
 
-      // Otherwise, fetch the data
       setLoading(true);
       try {
         const profile = await fetchUserProfile(user.id, user.token);
@@ -66,10 +155,11 @@ const ProfileEdit = () => {
           };
           setFormData(userData);
           setInitialData(userData);
+          setDobDisplay(formatDisplayDate(userData.dateOfBirth));
           dataLoaded.current = true;
         }
-      } catch (error) {
-        console.error('Error loading user data:', error);
+      } catch (err) {
+        console.error('Error loading user data:', err);
         setError('Failed to load user data');
       } finally {
         setLoading(false);
@@ -79,14 +169,23 @@ const ProfileEdit = () => {
     loadUserData();
   }, [user?.id, user?.token, profileData, fetchUserProfile]);
 
-  // Reset data loaded flag when user changes
   useEffect(() => {
     dataLoaded.current = false;
   }, [user?.id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (name === 'dateOfBirth') {
+      setDobDisplay(value);
+      // Auto-convert to YYYY-MM-DD once fully entered (MM/DD/YYYY = 10 chars)
+      if (value.length === 10) {
+        setFormData((prev) => ({ ...prev, dateOfBirth: parseDisplayDate(value) }));
+      } else {
+        setFormData((prev) => ({ ...prev, dateOfBirth: value }));
+      }
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleFileChange = (e) => {
@@ -94,25 +193,14 @@ const ProfileEdit = () => {
     if (file) {
       const reader = new FileReader();
       reader.onload = () => {
-        setFormData((prev) => ({
-          ...prev,
-          profileImage: reader.result,
-        }));
+        setFormData((prev) => ({ ...prev, profileImage: reader.result }));
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleEdit = () => {
-    setIsEditing(true);
-    setError('');
-  };
-
-  const handleCancel = () => {
-    setFormData(initialData);
-    setIsEditing(false);
-    setError('');
-  };
+  const handleEdit = () => { setIsEditing(true); setError(''); setDobDisplay(formatDisplayDate(formData.dateOfBirth)); };
+  const handleCancel = () => { setFormData(initialData); setDobDisplay(formatDisplayDate(initialData.dateOfBirth)); setIsEditing(false); setError(''); };
 
   const handleSave = async (e) => {
     e.preventDefault();
@@ -144,18 +232,12 @@ const ProfileEdit = () => {
         throw new Error(errorData.message || 'Failed to update profile');
       }
 
-      const data = await response.json();
-      console.log('Update response:', data);
-
-      // Update the context with new profile data
       updateProfileData(formData);
       setInitialData(formData);
       setIsEditing(false);
-
-      console.log('Profile updated successfully');
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      setError(error.message || 'Failed to update profile');
+    } catch (err) {
+      console.error('Error updating profile:', err);
+      setError(err.message || 'Failed to update profile');
     } finally {
       setLoading(false);
     }
@@ -163,49 +245,65 @@ const ProfileEdit = () => {
 
   if (loading && !formData.userName) {
     return (
-      <div className="min-h-screen bg-[#121212] text-[#e0e0e0]">
-        <div className="mx-auto flex w-full max-w-4xl items-center justify-center px-4 py-8">
-          <div className="text-center text-lg text-[#888]">Loading...</div>
-        </div>
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ color: 'var(--text-subtle)', fontSize: '15px' }}>Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#121212] text-[#e0e0e0]">
-      <div className="mx-auto w-full max-w-4xl px-4 py-8">
-        <h2 className="mb-8 text-center text-4xl font-bold text-[#00aaff]">
+    <div style={{ minHeight: '100vh', color: 'var(--text-primary)' }}>
+      <div style={{ maxWidth: '680px', margin: '0 auto', padding: '2.5rem 1rem' }}>
+        <h2 style={{
+          fontSize: '1.75rem', fontWeight: 700, textAlign: 'center',
+          color: 'var(--text-primary)', marginBottom: '2rem', letterSpacing: '-0.3px',
+        }}>
           {isEditing ? 'Edit Profile' : 'My Profile'}
         </h2>
 
         {error && (
-          <div className="mx-auto mb-6 max-w-md rounded-md border border-[#ff4d4d] bg-[#ff4d4d]/10 p-3 text-center text-[#ff4d4d]">
+          <div style={{
+            color: '#fca5a5', background: 'rgba(252,165,165,0.07)',
+            border: '1px solid rgba(252,165,165,0.2)', borderRadius: '8px',
+            padding: '0.65rem 1rem', textAlign: 'center', fontSize: '0.9rem', marginBottom: '1.5rem',
+          }}>
             {error}
           </div>
         )}
 
-        <div className="mx-auto max-w-2xl rounded-2xl border border-[#333] bg-[#1e1e1e] p-6 shadow-[0_4px_12px_rgba(0,0,0,0.4)]">
-          {/* Profile Image Section */}
-          <div className="relative mb-6 flex justify-center">
-            <div className="h-24 w-24 overflow-hidden rounded-full border-4 border-[#333] shadow-md">
+        <div style={{
+          background: 'var(--bg-surface)', border: '1px solid var(--border)',
+          borderRadius: '16px', padding: '2rem', boxShadow: '0 8px 40px rgba(0,0,0,0.4)',
+        }}>
+          {/* Profile image */}
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem', position: 'relative' }}>
+            <div style={{
+              width: '96px', height: '96px', borderRadius: '50%', overflow: 'hidden',
+              border: '2px solid var(--border-accent)',
+              boxShadow: '0 0 0 4px var(--bg-surface), 0 0 0 6px rgba(99,102,241,0.2)',
+              background: 'var(--bg-elevated)',
+            }}>
               <img
-                className="h-full w-full object-cover"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 src={formData.profileImage || '/images/default-profile.png'}
                 alt="Profile"
               />
             </div>
             {isEditing && (
-              <label
-                htmlFor="profile-upload"
-                className="absolute bottom-0 right-1/2 translate-x-8 translate-y-2 transform cursor-pointer rounded-full bg-[#0088cc] p-2 shadow-[0_0_5px_#00aaff] transition-all duration-300 hover:bg-[#00aaff] hover:shadow-[0_0_10px_#00aaff,0_0_20px_#00aaff]"
-              >
-                <FiEdit2 size={16} color="white" />
+              <label htmlFor="profile-upload" style={{
+                position: 'absolute', bottom: '0px', left: 'calc(50% + 28px)',
+                background: 'var(--accent)', borderRadius: '50%',
+                width: '28px', height: '28px', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 2px 8px rgba(99,102,241,0.4)',
+              }}>
+                <FiEdit2 size={13} color="white" />
               </label>
             )}
             <input
               type="file"
               id="profile-upload"
-              className="hidden"
+              style={{ display: 'none' }}
               accept="image/*"
               onChange={handleFileChange}
               disabled={!isEditing}
@@ -215,22 +313,28 @@ const ProfileEdit = () => {
           {!isEditing && (
             <button
               type="button"
-              className="mb-6 flex w-full items-center justify-center gap-2 rounded-lg bg-[#0088cc] px-4 py-3 font-semibold text-white shadow-[0_0_5px_#00aaff] transition-all duration-300 hover:bg-[#00aaff] hover:shadow-[0_0_10px_#00aaff,0_0_20px_#00aaff]"
               onClick={handleEdit}
-              aria-label="Edit Profile"
+              style={{
+                width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                gap: '0.5rem', marginBottom: '1.5rem',
+                background: 'linear-gradient(135deg, var(--accent-dark), var(--accent))',
+                color: '#fff', border: 'none', borderRadius: '8px',
+                padding: '0.75rem', fontSize: '0.95rem', fontWeight: 600,
+                fontFamily: 'inherit', cursor: 'pointer',
+                boxShadow: '0 2px 14px rgba(99,102,241,0.3)',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.opacity = '0.88'; }}
+              onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
             >
-              <FiEdit2 size={18} />
+              <FiEdit2 size={17} />
               <span>Edit Profile</span>
             </button>
           )}
 
-          <form onSubmit={handleSave} className="space-y-4">
-            {/* Form Row for Username and Date of Birth */}
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-semibold text-[#00aaff]">
-                  Username
-                </label>
+          <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div className="profile-field-group">
+                <label className="input-label">Username</label>
                 <input
                   type="text"
                   name="userName"
@@ -238,85 +342,83 @@ const ProfileEdit = () => {
                   onChange={handleChange}
                   disabled={!isEditing}
                   required
-                  className="rounded-lg border border-[#333] bg-[#2a2a2a] px-3 py-3 text-[#e0e0e0] transition-all duration-300 focus:border-[#00aaff] focus:shadow-[0_0_5px_#00aaff] focus:outline-none disabled:bg-[#1a1a1a] disabled:text-[#666]"
+                  className="profile-input"
                 />
               </div>
 
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-semibold text-[#00aaff]">
-                  Date of Birth
-                </label>
+              <div className="profile-field-group">
+                <label className="input-label">Date of Birth</label>
                 <input
-                  type="date"
+                  type="text"
                   name="dateOfBirth"
-                  value={formData.dateOfBirth}
+                  value={isEditing ? dobDisplay : formatDisplayDate(formData.dateOfBirth)}
                   onChange={handleChange}
                   disabled={!isEditing}
-                  className="rounded-lg border border-[#333] bg-[#2a2a2a] px-3 py-3 text-[#e0e0e0] transition-all duration-300 focus:border-[#00aaff] focus:shadow-[0_0_5px_#00aaff] focus:outline-none disabled:bg-[#1a1a1a] disabled:text-[#666]"
+                  placeholder="MM/DD/YYYY"
+                  maxLength={10}
+                  className="profile-input"
                 />
               </div>
             </div>
 
-            {/* Form Row for School and Field of Study */}
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-semibold text-[#00aaff]">
-                  School
-                </label>
-                <input
-                  type="text"
-                  name="school"
-                  value={formData.school}
-                  onChange={handleChange}
-                  disabled={!isEditing}
-                  className="rounded-lg border border-[#333] bg-[#2a2a2a] px-3 py-3 text-[#e0e0e0] transition-all duration-300 focus:border-[#00aaff] focus:shadow-[0_0_5px_#00aaff] focus:outline-none disabled:bg-[#1a1a1a] disabled:text-[#666]"
-                />
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-semibold text-[#00aaff]">
-                  Field of Study
-                </label>
-                <input
-                  type="text"
-                  name="fieldOfStudy"
-                  value={formData.fieldOfStudy}
-                  onChange={handleChange}
-                  disabled={!isEditing}
-                  className="rounded-lg border border-[#333] bg-[#2a2a2a] px-3 py-3 text-[#e0e0e0] transition-all duration-300 focus:border-[#00aaff] focus:shadow-[0_0_5px_#00aaff] focus:outline-none disabled:bg-[#1a1a1a] disabled:text-[#666]"
-                />
-              </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <AutocompleteInput
+                label="School"
+                name="school"
+                value={formData.school}
+                onChange={handleChange}
+                disabled={!isEditing}
+                list={US_UNIVERSITIES}
+              />
+              <AutocompleteInput
+                label="Field of Study"
+                name="fieldOfStudy"
+                value={formData.fieldOfStudy}
+                onChange={handleChange}
+                disabled={!isEditing}
+                list={FIELDS_OF_STUDY}
+              />
             </div>
 
-            {/* Bio Field */}
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-semibold text-[#00aaff]">
-                Bio
-              </label>
+            <div className="profile-field-group">
+              <label className="input-label">Bio</label>
               <textarea
                 name="bio"
                 value={formData.bio}
                 onChange={handleChange}
                 disabled={!isEditing}
                 rows={4}
-                className="min-h-[100px] resize-none rounded-lg border border-[#333] bg-[#2a2a2a] px-3 py-3 text-[#e0e0e0] transition-all duration-300 focus:border-[#00aaff] focus:shadow-[0_0_5px_#00aaff] focus:outline-none disabled:bg-[#1a1a1a] disabled:text-[#666]"
+                className="profile-input"
+                style={{ minHeight: '100px', resize: 'vertical' }}
               />
             </div>
 
             {isEditing && (
-              <div className="flex flex-col gap-3 pt-4 md:flex-row">
+              <div style={{ display: 'flex', gap: '0.75rem', paddingTop: '0.5rem' }}>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 rounded-lg bg-[#0088cc] px-6 py-3 font-semibold text-white shadow-[0_0_5px_#00aaff] transition-all duration-300 hover:bg-[#00aaff] hover:shadow-[0_0_10px_#00aaff,0_0_20px_#00aaff] disabled:cursor-not-allowed disabled:bg-[#333] disabled:text-[#666] disabled:shadow-none"
+                  style={{
+                    flex: 1, padding: '0.75rem', fontFamily: 'inherit',
+                    background: 'linear-gradient(135deg, var(--accent-dark), var(--accent))',
+                    color: '#fff', border: 'none', borderRadius: '8px',
+                    fontSize: '0.95rem', fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer',
+                    opacity: loading ? 0.6 : 1,
+                    boxShadow: '0 2px 12px rgba(99,102,241,0.25)',
+                  }}
                 >
                   {loading ? 'Saving...' : 'Save Changes'}
                 </button>
                 <button
                   type="button"
-                  className="flex-1 rounded-lg border border-[#555] bg-[#333] px-6 py-3 font-semibold text-[#e0e0e0] transition-all duration-300 hover:border-[#666] hover:bg-[#444]"
                   onClick={handleCancel}
                   disabled={loading}
+                  style={{
+                    flex: 1, padding: '0.75rem', fontFamily: 'inherit',
+                    background: 'var(--bg-elevated)', color: 'var(--text-muted)',
+                    border: '1px solid var(--border)', borderRadius: '8px',
+                    fontSize: '0.95rem', fontWeight: 500, cursor: 'pointer',
+                  }}
                 >
                   Cancel
                 </button>

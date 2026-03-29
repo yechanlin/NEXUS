@@ -23,8 +23,8 @@ router.get("/", userController.getAllUsers);
 // Get a user
 router.get("/:id", userController.getUser);
 
-// Update the user profile
-router.patch("/profilesetup", userController.updateUserProfile);
+// Update the user profile (requires authentication)
+router.patch("/profilesetup", authController.protect, userController.updateUserProfile);
 
 // Get notifications for the logged-in user
 router.get('/notifications', authController.protect, getNotifications);

@@ -1,28 +1,26 @@
 .profile-setup {
   min-height: calc(100vh - 70px);
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 90px;
+  padding: 2.5rem 2rem;
   max-width: 600px;
   margin: 24px auto;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  border: 1px solid #333;
-  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  border-radius: 16px;
   overflow: hidden;
 }
 
-/* Header styling */
 .profile-setup h1 {
-  font-size: 1.8rem;
-  font-weight: var(--font-weight-bold);
-  color: #fff;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text-primary);
   margin-bottom: 1.5rem;
-  letter-spacing: -0.5px;
+  letter-spacing: -0.3px;
 }
 
-/* Profile Picture Section*/
 .profile-picture {
   position: relative;
   margin-bottom: 2rem;
@@ -31,27 +29,28 @@
 
 .profile-picture label {
   display: block;
-  font-size: 1.1rem;
+  font-size: 0.85rem;
   margin-bottom: 0.5rem;
-  color: #aaa;
-  font-weight: var(--font-weight-medium);
+  color: var(--text-subtle);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
 .circle {
-  width: 150px;
-  height: 150px;
+  width: 130px;
+  height: 130px;
   border-radius: 50%;
   overflow: hidden;
   margin: 0 auto;
-  border: 2px solid #333;
-  background-color: #23272f;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-  transition: all 0.3s ease;
+  border: 2px solid var(--border-accent);
+  background: var(--bg-elevated);
+  box-shadow: 0 0 0 4px var(--bg-surface), 0 0 0 6px rgba(99,102,241,0.2);
+  transition: all 0.25s ease;
 }
 
 .circle:hover {
-  box-shadow: 0 6px 12px rgba(0, 170, 255, 0.3);
-  transform: translateY(-2px);
+  border-color: var(--accent);
   cursor: pointer;
 }
 
@@ -63,24 +62,23 @@
 
 .edit-icon {
   position: absolute;
-  bottom: 0;
-  right: 0;
-  background-color: #0088cc;
+  bottom: 2px;
+  right: calc(50% - 78px);
+  background: var(--accent);
   border-radius: 50%;
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .edit-icon:hover {
-  background-color: #00aaff;
+  background: var(--accent-dark);
   transform: scale(1.1);
-  box-shadow: 0 0 10px #00aaff;
 }
 
 .edit-icon-container {
@@ -95,29 +93,28 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background-color: #28a745;
-  color: white;
-  border: none;
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--accent-light);
+  border: 1px solid rgba(99, 102, 241, 0.25);
   border-radius: 8px;
   padding: 0.5rem 1rem;
   cursor: pointer;
-  margin-top: -1rem;
-  font-size: 1rem;
-  font-weight: var(--font-weight-medium);
-  transition: all 0.3s ease;
+  margin-top: -0.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  font-family: inherit;
+  transition: all 0.2s;
 }
 
 .edit-profile-icon-btn:hover {
-  background-color: #218838;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(40, 167, 69, 0.2);
+  background: rgba(99, 102, 241, 0.18);
+  border-color: rgba(99, 102, 241, 0.4);
 }
 
 .file-input {
   display: none;
 }
 
-/* Form Styling (dark inputs with focus effects) */
 .form {
   width: 100%;
   display: flex;
@@ -126,34 +123,39 @@
 }
 
 .input-label {
-  font-size: 1rem;
+  font-size: 0.8rem;
   margin-bottom: 0.25rem;
-  color: #aaa;
+  color: var(--text-muted);
   text-align: left;
-  font-weight: var(--font-weight-medium);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
 .form input,
 .form textarea {
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #444;
-  border-radius: 12px;
-  background: #181818;
-  color: #e0e0e0;
-  font-size: 1rem;
-  font-family: var(--font-primary);
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-family: inherit;
   box-sizing: border-box;
-  transition:
-    border-color 0.3s ease,
-    box-shadow 0.3s ease;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .form input:focus,
 .form textarea:focus {
   outline: none;
-  border-color: #00aaff;
-  box-shadow: 0 0 5px rgba(0, 170, 255, 0.3);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.form input::placeholder,
+.form textarea::placeholder {
+  color: var(--text-subtle);
 }
 
 .form textarea {
@@ -163,162 +165,169 @@
 
 .form input:disabled,
 .form textarea:disabled {
-  color: #e0e0e0;
+  color: var(--text-muted);
   cursor: default;
-  box-shadow: none;
+  opacity: 0.8;
 }
 
-.form textarea:disabled {
-  min-height: 100px;
-}
-
-/* View Mode Display Fields (styled like application cards with hover) */
+/* View-mode display fields */
 .display-field {
   width: 100%;
-  padding: 0.75rem;
-  background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
-  border: 1px solid #4b5563;
-  border-radius: 12px;
-  font-size: 1rem;
-  color: #e0e0e0;
+  padding: 0.7rem 0.9rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: var(--text-muted);
   white-space: pre-wrap;
   word-break: break-word;
   box-sizing: border-box;
-  transition: all 0.3s ease;
-}
-
-.display-field:hover {
-  border-color: #60a5fa;
-  box-shadow: 0 8px 20px rgba(96, 165, 250, 0.15);
 }
 
 .bio-display {
-  min-height: 100px;
+  min-height: 90px;
 }
 
-/* Button Group (with gradients, hover effects, and shine animation like action buttons) */
+/* Button group */
 .button-group {
   display: flex;
-  gap: 1rem;
+  gap: 0.75rem;
   width: 100%;
-  margin-top: 1.5rem;
+  margin-top: 1.2rem;
 }
 
 .button-group button {
   flex: 1;
-  padding: 0.75rem;
-  font-size: 1rem;
+  padding: 0.7rem;
+  font-size: 0.95rem;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  font-weight: var(--font-weight-medium);
+  transition: all 0.2s;
+  font-weight: 500;
+  font-family: inherit;
   color: #fff;
 }
 
 .button-group button[type='submit'],
 .button-group button.save-button {
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, var(--accent-dark), var(--accent));
+  box-shadow: 0 2px 12px rgba(99, 102, 241, 0.25);
+}
+
+.button-group button[type='submit']:hover,
+.button-group button.save-button:hover {
+  opacity: 0.88;
+  box-shadow: 0 4px 18px rgba(99, 102, 241, 0.4);
 }
 
 .button-group button.cancel-button {
-  background: linear-gradient(135deg, #6c757d 0%, #4b5563 100%);
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+.button-group button.cancel-button:hover {
+  background: #1a2030;
+  color: var(--text-primary);
 }
 
-.button-group button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.1);
-}
-
-.button-group button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.2),
-    transparent
-  );
-  transition: left 0.5s;
-}
-
-.button-group button:hover::before {
-  left: 100%;
-}
-
-/* Single Edit Button in View Mode (green gradient like apply buttons) */
+/* Single edit button (view mode) */
 .form button:not(.button-group button) {
   width: 100%;
-  padding: 0.75rem;
-  font-size: 1rem;
-  background: linear-gradient(135deg, #28a745 0%, #218838 100%);
-  color: #fff;
-  border: none;
+  padding: 0.7rem;
+  font-size: 0.95rem;
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--accent-light);
+  border: 1px solid rgba(99, 102, 241, 0.25);
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  font-weight: var(--font-weight-medium);
+  font-weight: 500;
+  font-family: inherit;
+  transition: all 0.2s;
 }
 
 .form button:not(.button-group button):hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(40, 167, 69, 0.1);
+  background: rgba(99, 102, 241, 0.18);
+  border-color: rgba(99, 102, 241, 0.4);
 }
 
-.form button:not(.button-group button)::before {
-  content: '';
+/* School autocomplete dropdown */
+.school-suggestions-dropdown {
   position: absolute;
-  top: 0;
-  left: -100%;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 200;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.school-suggestion-item {
+  padding: 9px 14px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  transition: background 0.15s, color 0.15s;
+  line-height: 1.4;
+}
+
+.school-suggestion-item:hover {
+  background: rgba(99, 102, 241, 0.08);
+  color: var(--accent-light);
+}
+
+.school-suggestion-item:last-child {
+  border-radius: 0 0 8px 8px;
+}
+
+/* ProfileEdit page field groups */
+.profile-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.profile-input {
   width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.2),
-    transparent
-  );
-  transition: left 0.5s;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.form button:not(.button-group button):hover::before {
-  left: 100%;
+.profile-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
-/* Responsive Adjustments (for smaller screens) */
+.profile-input::placeholder {
+  color: var(--text-subtle);
+}
+
+.profile-input:disabled {
+  color: var(--text-muted);
+  cursor: default;
+  opacity: 0.8;
+}
+
 @media (max-width: 768px) {
   .profile-setup {
-    padding: 1rem;
-    padding-top: 80px;
+    padding: 1.5rem 1rem;
     max-width: 100%;
-    border-radius: 0;
+    margin: 12px;
+    border-radius: 12px;
   }
-
-  .circle {
-    width: 120px;
-    height: 120px;
-  }
-
-  .edit-icon {
-    width: 35px;
-    height: 35px;
-  }
-
-  .pencil img {
-    width: 18px;
-    height: 18px;
-  }
-
-  .button-group {
-    flex-direction: column;
-    gap: 0.75rem;
-  }
+  .circle { width: 100px; height: 100px; }
+  .button-group { flex-direction: column; gap: 0.6rem; }
 }

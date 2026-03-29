@@ -1,5 +1,8 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FiEdit2 } from 'react-icons/fi';
+import { AuthContext } from '../context/AuthContext';
+import { API_ENDPOINTS } from '../config/api';
 import '../styles/profilesetup.css';
 
 const ProfileSetup = () => {
@@ -11,7 +14,10 @@ const ProfileSetup = () => {
     fieldOfStudy: '',
     bio: '',
   });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -29,35 +35,63 @@ const ProfileSetup = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
+    setError('');
+    setLoading(true);
 
-    navigate('/mainPage');
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(API_ENDPOINTS.profileSetup || `${API_ENDPOINTS.users}/profilesetup`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          userName: formData.userName,
+          dateOfBirth: formData.dateOfBirth,
+          school: formData.school,
+          fieldOfStudy: formData.fieldOfStudy,
+          bio: formData.bio,
+          profilePicture: formData.profileImage,
+        }),
+      });
+
+      const data = await response.json();
+      if (data.status === 'success') {
+        navigate('/mainPage');
+      } else {
+        setError(data.message || 'Failed to save profile');
+      }
+    } catch (err) {
+      setError('Failed to save profile. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <>
-      <div className="navbar">
-        <nav>
-          <h1 className="logo-text">NEXUS</h1>
-        </nav>
+      <div className="ps-navbar">
+        <h1 className="ps-logo">NEXUS</h1>
       </div>
       <div className="profile-setup">
-        <h1>Create Profile</h1>
-        <div className="profile-picture">
-          <label>Profile Picture</label>
-          <div className="circle">
-            <img
-              className="profile-image"
-              src={formData.profileImage || '/images/default-profile.png'}
-              alt="Profile"
-            />
+        <h1>Create Your Profile</h1>
+        <p className="ps-subtitle">Tell collaborators about yourself</p>
+
+        <div className="profile-picture-wrapper">
+          <div className="ps-circle">
+            {formData.profileImage ? (
+              <img className="profile-image" src={formData.profileImage} alt="Profile" />
+            ) : (
+              <span className="ps-avatar-placeholder">
+                {formData.userName ? formData.userName.charAt(0).toUpperCase() : '?'}
+              </span>
+            )}
           </div>
-          <label htmlFor="profile-upload" className="edit-icon">
-            <div className="pencil">
-              <img src="../..images/Vector.png" alt="Edit" />
-            </div>
+          <label htmlFor="profile-upload" className="ps-edit-icon" title="Upload photo">
+            <FiEdit2 size={14} />
           </label>
           <input
             type="file"
@@ -67,55 +101,67 @@ const ProfileSetup = () => {
             onChange={handleFileChange}
           />
         </div>
-        <form onSubmit={handleSubmit} className="form">
-          <label className="input-label">
-            Username&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-          </label>
-          <input
-            type="text"
-            name="userName"
-            placeholder="Enter your username"
-            value={formData.userName}
-            onChange={handleChange}
-            required
-          />
-          <label className="input-label">Date of Birth&nbsp;</label>
-          <input
-            type="date"
-            name="dateOfBirth"
-            placeholder="Pick a date"
-            value={formData.dateOfBirth}
-            onChange={handleChange}
-          />
-          <label className="input-label">Field of Study</label>
-          <input
-            type="text"
-            name="fieldOfStudy"
-            placeholder="Enter your field of study"
-            value={formData.fieldOfStudy}
-            onChange={handleChange}
-          />
-          <label className="input-label">
-            School&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-          </label>
-          <input
-            type="text"
-            name="school"
-            placeholder="Enter your school"
-            value={formData.school}
-            onChange={handleChange}
-          />
-          <label className="input-label">
-            Bio&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-          </label>
-          <textarea
-            name="bio"
-            placeholder="Tell us about yourself"
-            value={formData.bio}
-            onChange={handleChange}
-          ></textarea>
-          <button type="submit" onClick={handleSubmit}>
-            Create Profile
+
+        <form onSubmit={handleSubmit} className="ps-form">
+          <div className="ps-field-group">
+            <label className="ps-label">Username *</label>
+            <input
+              type="text"
+              name="userName"
+              placeholder="Enter your username"
+              value={formData.userName}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="ps-field-group">
+            <label className="ps-label">Date of Birth</label>
+            <input
+              type="date"
+              name="dateOfBirth"
+              value={formData.dateOfBirth}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="ps-field-group">
+            <label className="ps-label">Field of Study</label>
+            <input
+              type="text"
+              name="fieldOfStudy"
+              placeholder="e.g. Computer Science, Business, Design"
+              value={formData.fieldOfStudy}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="ps-field-group">
+            <label className="ps-label">School</label>
+            <input
+              type="text"
+              name="school"
+              placeholder="Enter your school or university"
+              value={formData.school}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="ps-field-group">
+            <label className="ps-label">Bio</label>
+            <textarea
+              name="bio"
+              placeholder="Tell collaborators about yourself, your skills, and what you're looking to build..."
+              value={formData.bio}
+              onChange={handleChange}
+              rows={4}
+            />
+          </div>
+
+          {error && <div className="ps-error">{error}</div>}
+
+          <button type="submit" className="ps-submit-btn" disabled={loading}>
+            {loading ? 'Saving...' : 'Create Profile'}
           </button>
         </form>
       </div>

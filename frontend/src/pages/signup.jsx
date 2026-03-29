@@ -54,6 +54,10 @@ const Signup = () => {
         if (!response.ok) {
           throw new Error(responseData.message || 'Failed to sign up');
         }
+        // Store token so profilesetup can authenticate the PATCH request
+        if (responseData.token) {
+          localStorage.setItem('token', responseData.token);
+        }
         navigate('/profilesetup');
       } else {
         throw new Error('Unexpected response format');

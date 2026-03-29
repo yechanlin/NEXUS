@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import userRoutes from "./routes/userRoutes.js";
 import projectRoutes from "./routes/projectRoutes.js";
+import chatRoutes from "./routes/chatRoutes.js";
 import { AppError } from "./utils/apperror.js";
 import { globalErrorHandler } from "./controllers/errorController.js";
 
@@ -59,6 +60,7 @@ app.get("/health", (req, res) => {
 // ✅ API Routes
 app.use("/api/users", userRoutes);
 app.use("/api/projects", projectRoutes);
+app.use("/api/chat", chatRoutes);
 
 app.get("/", (req, res) => {
   res.json({ status: "success", message: "NEXUS API is running" });

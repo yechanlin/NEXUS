@@ -4,76 +4,79 @@
   align-items: center;
   min-height: 100vh;
   width: 100%;
-  background-color: #121212;
 }
 
 .login {
   padding: 40px;
-  border: 1px solid #333;
-  border-radius: 10px;
-  width: 428px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  width: 420px;
   display: flex;
   align-items: center;
   flex-direction: column;
   gap: 20px;
   box-sizing: border-box;
-  background-color: #1e1e1e;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
-  color: #e0e0e0;
+  background: var(--bg-surface);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+  color: var(--text-primary);
 }
 
 .userFields {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 12px;
   width: 100%;
 }
 
 .field {
-  height: 48px;
+  height: 46px;
   border-radius: 8px;
-  border: 1px solid #444;
-  padding: 10px;
-  font-size: 16px;
-  background-color: #2a2a2a;
-  color: #e0e0e0;
+  border: 1px solid var(--border);
+  padding: 10px 14px;
+  font-size: 14px;
+  background: var(--bg-elevated);
+  color: var(--text-primary);
   width: 100%;
   box-sizing: border-box;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .field:focus {
   outline: none;
-  border-color: #00aaff;
-  box-shadow: 0 0 5px #00aaff;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
 .field::placeholder {
-  color: #aaa;
+  color: var(--text-subtle);
 }
 
 .loginField {
-  margin-top: 20px;
+  margin-top: 8px;
   cursor: pointer;
-  background-color: #0088cc;
+  background: linear-gradient(135deg, var(--accent-dark), var(--accent));
   color: white;
-  padding: 10px 20px;
+  padding: 11px 20px;
   border: none;
   border-radius: 8px;
-  font-size: 16px;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  transition: opacity 0.2s, box-shadow 0.2s;
   width: 100%;
-  box-shadow: 0 0 5px #00aaff, 0 0 10px #00aaff;
+  box-shadow: 0 2px 14px rgba(99, 102, 241, 0.3);
 }
 
 .loginField:hover {
-  background-color: #00aaff;
-  box-shadow: 0 0 10px #00aaff, 0 0 20px #00aaff;
+  opacity: 0.88;
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.45);
 }
 
 .error {
-  color: #ff4d4d;
+  color: #fca5a5;
   text-align: center;
+  font-size: 13px;
 }
 
 .logo {
@@ -82,13 +85,20 @@
   margin: 0 auto;
   display: block;
   border-radius: 10px;
-  margin-bottom: -20px;
+  margin-bottom: -10px;
 }
 
 .text-link {
-  color: #00aaff;
+  color: var(--accent-light);
+  text-decoration: none;
+}
+
+.text-link:hover {
+  color: #fff;
 }
 
 .footer-container {
-  margin-top: 10px;
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--text-subtle);
 }

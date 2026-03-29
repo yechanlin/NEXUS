@@ -15,6 +15,7 @@ import Recruiter from './pages/recruiter';
 import Searcher from './pages/searcher';
 import Navbar from './components/Navbar';
 import ProfileEdit from './pages/ProfileEdit';
+import ChatBox from './components/ChatBox';
 import { AuthContext } from './context/AuthContext';
 import { API_ENDPOINTS } from './config/api';
 
@@ -114,6 +115,7 @@ function AppContent() {
   return (
     <>
       {showNavbar && <Navbar />}
+      {showNavbar && <ChatBox />}
       <main className="content-wrapper">
         <Routes>
           <Route path="/" element={<Login />} />
