@@ -1,64 +1,78 @@
-body, html { 
-  font-family: "Gill Sans", sans-serif;
+body, html {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-.navbar {
-  display: inline-block;
-  position:absolute;
-  top: 0%;
-  left : 0%;
-  background-color: #FAFAFA;
-  width:100%;
-  height: 6%;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);;
+.ps-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background-color: #1a1a2e;
+  border-bottom: 1px solid #2a2a4a;
+  display: flex;
+  align-items: center;
+  padding: 0 2rem;
+  z-index: 100;
 }
 
-.logo-text {
-  position: absolute;
-  top: 12%;
-  left: 12%;
-  font-size: 30px;
-  font-weight: 475;
+.ps-logo {
+  font-size: 24px;
+  font-weight: 700;
+  color: #6366f1;
+  margin: 0;
+  letter-spacing: 2px;
 }
 
 .profile-setup {
-  display: inline-block;
-  width: 100%;
-  padding: 50px 100px;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  margin: 35px 0px 0px 0px;
-  background-color: #FAFAFA;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  text-align: center;
+  max-width: 560px;
+  margin: 90px auto 60px auto;
+  padding: 2.5rem 2.5rem;
+  background: #1e1e2e;
+  border: 1px solid #2a2a4a;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  color: #e0e0e0;
 }
 
 .profile-setup h1 {
-  font-size: 24px;
-  margin-bottom: 20px;
+  font-size: 26px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 4px 0;
+  text-align: center;
 }
 
-.profile-picture {
-  position: relative;
-  display: inline-block;
-  margin-bottom: 20px;
+.ps-subtitle {
+  text-align: center;
+  color: #888;
+  font-size: 14px;
+  margin: 0 0 2rem 0;
 }
-.circle {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  overflow: hidden;
+
+/* Profile picture */
+.profile-picture-wrapper {
   position: relative;
-  border: 3px solid #e0e0e0;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.ps-circle {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: #2a2a4a;
+  border: 3px solid #6366f144;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f9f9f9;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  box-shadow: 0 0 0 4px #1e1e2e, 0 0 0 6px #6366f133;
 }
 
-.circle:hover {
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+.ps-circle:hover {
+  border-color: #6366f188;
   cursor: pointer;
 }
 
@@ -68,82 +82,126 @@ body, html {
   object-fit: cover;
 }
 
-.edit-icon {
+.ps-avatar-placeholder {
+  font-size: 40px;
+  font-weight: 700;
+  color: #6366f1;
+  line-height: 1;
+}
+
+.ps-edit-icon {
   position: absolute;
-  bottom: -10px;
-  right: 10px;
-  background-color: #5C6C90;
+  bottom: 4px;
+  left: calc(50% + 28px);
+  background: #6366f1;
   color: white;
   border-radius: 50%;
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  transition:
-    transform 0.3s ease,
-    background-color 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 170, 255, 0.4);
+  transition: background 0.2s, transform 0.2s;
 }
 
-.pencil {
-  width: 60%;
-  height: 60%;
-}
-
-.edit-icon:hover {
-  background-color: #0056b3;
+.ps-edit-icon:hover {
+  background: #4f46e5;
   transform: scale(1.1);
-}
-
-.edit-icon i {
-  font-size: 14px;
 }
 
 .file-input {
   display: none;
 }
 
-.input-label {
-  margin-left: -80%;
-  font-size: large;
-  margin-bottom: -17px;
-}
-
-.form {
+/* Form */
+.ps-form {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 1.2rem;
 }
 
-.form input,
-.form textarea {
+.ps-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ps-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #aaaacc;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.ps-form input,
+.ps-form textarea {
   width: 100%;
-  height: 10%;
-  padding: 10px;
-  border: 1px solid #ccc;
+  padding: 10px 14px;
+  background: #13131f;
+  border: 1px solid #2a2a4a;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #e0e0e0;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.ps-form input:focus,
+.ps-form textarea:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(0, 170, 255, 0.1);
+}
+
+.ps-form input::placeholder,
+.ps-form textarea::placeholder {
+  color: #555;
+}
+
+.ps-form textarea {
+  resize: vertical;
+  min-height: 90px;
+  font-family: inherit;
+}
+
+.ps-form input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 0.5;
+}
+
+.ps-error {
+  background: rgba(255, 59, 59, 0.12);
+  border: 1px solid #ff3b3b44;
+  color: #ff6b6b;
+  padding: 10px 14px;
   border-radius: 8px;
   font-size: 14px;
 }
 
-.form textarea {
-  resize: none;
-  height: 80px;
-}
-
-button[type='submit'] {
-  width: 25vi;
-  background-color: #5C6C90;
+.ps-submit-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
   color: white;
-  padding: 10px;
+  padding: 12px;
   border: none;
-  border-radius: 8px;
-  font-size: 16px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: opacity 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 16px rgba(0, 170, 255, 0.3);
+  margin-top: 0.5rem;
 }
 
-button[type='submit']:hover {
-  background-color: #0056b3;
+.ps-submit-btn:hover:not(:disabled) {
+  opacity: 0.9;
+  box-shadow: 0 6px 20px rgba(0, 170, 255, 0.45);
+}
+
+.ps-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }

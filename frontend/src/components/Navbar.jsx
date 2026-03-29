@@ -112,28 +112,16 @@ const Navbar = () => {
         NEXUS
       </NavLink>
       <div className="nav-links">
-        <NavLink 
-          to="/mainPage" 
-          className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-        >
+        <NavLink to="/mainPage" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
           <FiGrid /> <span>Discover</span>
         </NavLink>
-        <NavLink 
-          to="/searcher" 
-          className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-        >
+        <NavLink to="/searcher" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
           <FiSearch /> <span>My Applications</span>
         </NavLink>
-        <NavLink 
-          to="/recruiter" 
-          className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-        >
+        <NavLink to="/recruiter" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
           <FiUsers /> <span>Manage Projects</span>
         </NavLink>
-        <NavLink
-          to="/my-projects"
-          className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-        >
+        <NavLink to="/my-projects" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
           <FiArchive /> <span>My Projects</span>
         </NavLink>
       </div>
@@ -141,20 +129,11 @@ const Navbar = () => {
         <NavLink to="/create-project" className="create-project-btn">
           <FiPlusSquare /> <span>Create Project</span>
         </NavLink>
-        <div
-          className="notification-bell-wrapper"
-          style={{ position: 'relative', marginRight: '1rem' }}
-        >
+        <div className="notification-bell-wrapper">
           <button
-            className="notification-bell"
+            className={`notification-bell ${unreadCount > 0 ? 'has-unread' : ''}`}
             onClick={() => setShowDropdown((prev) => !prev)}
             aria-label="Notifications"
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              position: 'relative',
-            }}
           >
             <FiBell size={22} />
             {unreadCount > 0 && (

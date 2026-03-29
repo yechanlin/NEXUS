@@ -56,6 +56,7 @@ const Signup = () => {
         if (!response.ok) {
           throw new Error(responseData.message || 'Failed to sign up');
         }
+
         if (responseData.token) {
           localStorage.setItem('token', responseData.token);
           const userData = {
@@ -65,6 +66,7 @@ const Signup = () => {
           };
           login(userData);
         }
+
         navigate('/profilesetup');
       } else {
         throw new Error('Unexpected response format');

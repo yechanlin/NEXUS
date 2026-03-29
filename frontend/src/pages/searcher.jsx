@@ -8,7 +8,7 @@ const Searcher = () => {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [filter, setFilter] = useState('all'); // all, pending, accepted, rejected
+  const [filter, setFilter] = useState('all');
 
   useEffect(() => {
     fetchMyApplications();
@@ -18,7 +18,6 @@ const Searcher = () => {
     try {
       setLoading(true);
       const response = await apiCall(`${API_ENDPOINTS.userApplications}?page=${currentPage}&limit=10`);
-      
       if (response.status === 'success') {
         setApplications(response.data.applications);
         setTotalPages(response.totalPages);
@@ -30,180 +29,203 @@ const Searcher = () => {
     }
   };
 
-  const getStatusColor = (status) => {
+  const getStatusStyle = (status) => {
     switch (status) {
-      case 'pending': return 'text-yellow-500 bg-yellow-900/20';
-      case 'accepted': return 'text-green-500 bg-green-900/20';
-      case 'rejected': return 'text-red-500 bg-red-900/20';
-      default: return 'text-gray-500 bg-gray-900/20';
+      case 'pending':  return { color: '#fbbf24', background: 'rgba(251,191,36,0.08)',  border: '1px solid rgba(251,191,36,0.2)' };
+      case 'accepted': return { color: '#6ee7b7', background: 'rgba(110,231,183,0.08)', border: '1px solid rgba(110,231,183,0.2)' };
+      case 'rejected': return { color: '#fca5a5', background: 'rgba(252,165,165,0.08)', border: '1px solid rgba(252,165,165,0.2)' };
+      default:         return { color: '#94a3b8', background: 'rgba(148,163,184,0.08)', border: '1px solid rgba(148,163,184,0.15)' };
     }
   };
 
   const getStatusIcon = (status) => {
     switch (status) {
-      case 'pending': return <FiClock className="w-4 h-4" />;
-      case 'accepted': return <FiCheck className="w-4 h-4" />;
-      case 'rejected': return <FiX className="w-4 h-4" />;
-      default: return <FiClock className="w-4 h-4" />;
+      case 'pending':  return <FiClock size={13} />;
+      case 'accepted': return <FiCheck size={13} />;
+      case 'rejected': return <FiX size={13} />;
+      default:         return <FiClock size={13} />;
     }
   };
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+      year: 'numeric', month: 'short', day: 'numeric',
     });
   };
 
   const filteredApplications = applications.filter(app => {
     if (filter === 'all') return true;
-    return app.application.status === filter;
+    return app.application?.status === filter;
   });
 
-  const getStatusCount = (status) => {
-    return applications.filter(app => app.application.status === status).length;
-  };
+  const getStatusCount = (status) => applications.filter(app => app.application?.status === status).length;
+
+  const summaryCards = [
+    { label: 'Total',    value: applications.length,        color: 'var(--accent-light)' },
+    { label: 'Pending',  value: getStatusCount('pending'),   color: '#fbbf24' },
+    { label: 'Accepted', value: getStatusCount('accepted'),  color: '#6ee7b7' },
+    { label: 'Rejected', value: getStatusCount('rejected'),  color: '#fca5a5' },
+  ];
+
+  const filterTabs = ['all', 'pending', 'accepted', 'rejected'];
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="text-white text-xl">Loading your applications...</div>
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ color: 'var(--text-subtle)', fontSize: '15px' }}>Loading your applications...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-8 text-center">My Applications</h1>
-        
-        {/* Status Summary */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-gray-800 rounded-lg p-4 text-center">
-            <div className="text-2xl font-bold text-blue-400">{applications.length}</div>
-            <div className="text-sm text-gray-400">Total Applications</div>
-          </div>
-          <div className="bg-gray-800 rounded-lg p-4 text-center">
-            <div className="text-2xl font-bold text-yellow-400">{getStatusCount('pending')}</div>
-            <div className="text-sm text-gray-400">Pending</div>
-          </div>
-          <div className="bg-gray-800 rounded-lg p-4 text-center">
-            <div className="text-2xl font-bold text-green-400">{getStatusCount('accepted')}</div>
-            <div className="text-sm text-gray-400">Accepted</div>
-          </div>
-          <div className="bg-gray-800 rounded-lg p-4 text-center">
-            <div className="text-2xl font-bold text-red-400">{getStatusCount('rejected')}</div>
-            <div className="text-sm text-gray-400">Rejected</div>
-          </div>
+    <div style={{ minHeight: '100vh', color: 'var(--text-primary)' }}>
+      <div className="container mx-auto px-4 py-8" style={{ maxWidth: '860px' }}>
+        <h1 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '28px', textAlign: 'center', color: 'var(--text-primary)' }}>
+          My Applications
+        </h1>
+
+        {/* Summary cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+          {summaryCards.map(({ label, value, color }) => (
+            <div key={label} style={{
+              background: 'var(--bg-surface)',
+              border: '1px solid var(--border)',
+              borderRadius: '12px',
+              padding: '16px',
+              textAlign: 'center',
+            }}>
+              <div style={{ fontSize: '26px', fontWeight: 700, color, lineHeight: 1 }}>{value}</div>
+              <div style={{ fontSize: '12px', color: 'var(--text-subtle)', marginTop: '6px' }}>{label}</div>
+            </div>
+          ))}
         </div>
 
-        {/* Filter Tabs */}
-        <div className="flex space-x-2 mb-6">
-          {['all', 'pending', 'accepted', 'rejected'].map((status) => (
+        {/* Filter tabs */}
+        <div style={{ display: 'flex', gap: '6px', marginBottom: '20px', flexWrap: 'wrap' }}>
+          {filterTabs.map((status) => (
             <button
               key={status}
               onClick={() => setFilter(status)}
-              className={`px-4 py-2 rounded-lg transition-colors ${
-                filter === status
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-              }`}
+              style={{
+                padding: '6px 16px',
+                borderRadius: '8px',
+                fontSize: '13px',
+                fontWeight: 500,
+                cursor: 'pointer',
+                transition: 'all 0.15s',
+                background: filter === status ? 'rgba(99,102,241,0.12)' : 'var(--bg-elevated)',
+                color: filter === status ? 'var(--accent-light)' : 'var(--text-subtle)',
+                border: filter === status ? '1px solid rgba(99,102,241,0.3)' : '1px solid var(--border)',
+              }}
             >
               {status.charAt(0).toUpperCase() + status.slice(1)}
             </button>
           ))}
         </div>
 
-        {/* Applications List */}
-        <div className="space-y-4">
+        {/* Application cards */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {filteredApplications.length === 0 ? (
-            <div className="text-center py-12">
-              <FiClock className="w-16 h-16 mx-auto text-gray-600 mb-4" />
-              <p className="text-gray-400 text-lg">
-                {filter === 'all' 
-                  ? "You haven't applied to any projects yet."
-                  : `No ${filter} applications found.`
-                }
+            <div style={{ textAlign: 'center', padding: '64px 0', color: 'var(--text-subtle)' }}>
+              <FiClock size={36} style={{ marginBottom: '12px', opacity: 0.25 }} />
+              <p style={{ fontSize: '14px' }}>
+                {filter === 'all' ? "You haven't applied to any projects yet." : `No ${filter} applications.`}
               </p>
             </div>
           ) : (
-            filteredApplications.map((item) => (
-              <div key={item.application._id} className="bg-gray-800 rounded-lg p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-xl font-semibold mb-2">{item.project.title}</h3>
-                    <p className="text-gray-300 mb-3 line-clamp-2">{item.project.description}</p>
-                    
-                    <div className="flex flex-wrap gap-4 text-sm text-gray-400">
-                      <div className="flex items-center">
-                        <FiMapPin className="w-4 h-4 mr-1" />
-                        <span>{item.project.location || 'Remote'}</span>
-                      </div>
-                      <div className="flex items-center">
-                        <FiTag className="w-4 h-4 mr-1" />
-                        <span>{item.project.category}</span>
-                      </div>
-                      <div className="flex items-center">
-                        <FiCalendar className="w-4 h-4 mr-1" />
-                        <span>Applied {formatDate(item.application.appliedAt)}</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="ml-4">
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(item.application.status)}`}>
-                      {getStatusIcon(item.application.status)}
-                      <span className="ml-1 capitalize">{item.application.status}</span>
-                    </span>
-                  </div>
-                </div>
-
-                {/* Project Creator Info */}
-                <div className="border-t border-gray-700 pt-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center mr-3">
-                        <span className="text-sm font-medium">
-                          {item.project.creator?.userName?.charAt(0) || 'U'}
+            filteredApplications.map((item) => {
+              const statusStyle = getStatusStyle(item.application?.status);
+              return (
+                <div key={item.application?._id} style={{
+                  background: 'var(--bg-surface)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '12px',
+                  padding: '20px',
+                  transition: 'border-color 0.15s',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px', marginBottom: '14px' }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '6px' }}>
+                        {item.project?.title}
+                      </h3>
+                      <p style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: 1.5, marginBottom: '10px',
+                        display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                        {item.project?.description}
+                      </p>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', fontSize: '12px', color: 'var(--text-subtle)' }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <FiMapPin size={12} /> {item.project?.location || 'Remote'}
+                        </span>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <FiTag size={12} /> {item.project?.category}
+                        </span>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <FiCalendar size={12} /> Applied {formatDate(item.application?.appliedAt)}
                         </span>
                       </div>
-                      <div>
-                        <p className="text-sm font-medium">Created by {item.project.creator?.userName || 'Unknown'}</p>
-                        <p className="text-xs text-gray-400">{item.project.projectType} Project</p>
-                      </div>
+                    </div>
+
+                    {/* Status badge — muted */}
+                    <span style={{
+                      display: 'flex', alignItems: 'center', gap: '5px', flexShrink: 0,
+                      fontSize: '12px', fontWeight: 500, padding: '4px 10px', borderRadius: '999px',
+                      ...statusStyle,
+                    }}>
+                      {getStatusIcon(item.application?.status)}
+                      <span style={{ textTransform: 'capitalize' }}>{item.application?.status}</span>
+                    </span>
+                  </div>
+
+                  {/* Creator row */}
+                  <div style={{ borderTop: '1px solid var(--border)', paddingTop: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{
+                      width: '30px', height: '30px', borderRadius: '8px', flexShrink: 0,
+                      background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: '13px', fontWeight: 600, color: 'var(--accent-light)',
+                    }}>
+                      {item.project?.creator?.userName?.charAt(0)?.toUpperCase() || 'U'}
+                    </div>
+                    <div>
+                      <p style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-muted)' }}>
+                        {item.project?.creator?.userName || 'Unknown'}
+                      </p>
+                      <p style={{ fontSize: '11px', color: 'var(--text-subtle)' }}>
+                        {item.project?.projectType} Project
+                      </p>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex justify-center mt-8">
-            <div className="flex space-x-2">
-              <button
-                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                disabled={currentPage === 1}
-                className="px-4 py-2 bg-gray-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-600"
-              >
-                Previous
-              </button>
-              <span className="px-4 py-2 bg-gray-700 text-white rounded-lg">
-                Page {currentPage} of {totalPages}
-              </span>
-              <button
-                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                disabled={currentPage === totalPages}
-                className="px-4 py-2 bg-gray-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-600"
-              >
-                Next
-              </button>
-            </div>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '28px' }}>
+            <button
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              style={{ padding: '7px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 500,
+                background: 'var(--bg-elevated)', color: 'var(--text-muted)', border: '1px solid var(--border)',
+                cursor: 'pointer', opacity: currentPage === 1 ? 0.4 : 1 }}
+            >
+              Previous
+            </button>
+            <span style={{ padding: '7px 16px', borderRadius: '8px', fontSize: '13px',
+              background: 'var(--bg-elevated)', color: 'var(--text-muted)', border: '1px solid var(--border)' }}>
+              {currentPage} / {totalPages}
+            </span>
+            <button
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              style={{ padding: '7px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 500,
+                background: 'var(--bg-elevated)', color: 'var(--text-muted)', border: '1px solid var(--border)',
+                cursor: 'pointer', opacity: currentPage === totalPages ? 0.4 : 1 }}
+            >
+              Next
+            </button>
           </div>
         )}
       </div>

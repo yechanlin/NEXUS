@@ -12,26 +12,11 @@ const userController = {
 
   // Your custom user-specific controllers...
   updateUserProfile: catchAsync(async (req, res, next) => {
-    const {
-      userId,
-      profileImage,
-      userName,
-      dateOfBirth,
-      school,
-      fieldOfStudy,
-      bio,
-    } = req.body;
+    const { profilePicture, userName, dateOfBirth, school, fieldOfStudy, bio } = req.body;
 
     const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      {
-        profilePicture: profileImage,
-        userName,
-        dateOfBirth,
-        school,
-        fieldOfStudy,
-        bio,
-      },
+      req.user._id,
+      { profilePicture, userName, dateOfBirth, school, fieldOfStudy, bio },
       { new: true, runValidators: true }
     );
 

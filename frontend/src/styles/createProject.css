@@ -1,55 +1,74 @@
 .create-project-page {
   min-height: 100vh;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  background-color: #121212;
-  color: #e0e0e0;
-  padding: 2rem 0;
+  padding: 2rem 1rem;
 }
 
 .create-project-form {
-  background-color: #1e1e1e;
+  background: var(--bg-surface);
   border-radius: 16px;
-  border: 1px solid #333;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
   padding: 2.5rem;
   width: 100%;
   max-width: 600px;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.3rem;
 }
 
 .create-project-form h2 {
-  margin-bottom: 0.5rem;
-  font-size: 2rem;
+  margin-bottom: 0.25rem;
+  font-size: 1.6rem;
   font-weight: 700;
-  color: #00aaff;
+  color: var(--text-primary);
   text-align: center;
+  letter-spacing: -0.3px;
+}
+
+.create-project-form label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-bottom: 5px;
 }
 
 .create-project-form input,
 .create-project-form textarea,
 .create-project-form select {
-  border: 1px solid #444;
+  border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 0.75rem 1rem;
-  font-size: 1rem;
+  padding: 0.7rem 1rem;
+  font-size: 0.95rem;
   font-family: inherit;
-  background-color: #2a2a2a;
-  color: #e0e0e0;
-  transition:
-    border-color 0.3s ease,
-    box-shadow 0.3s ease;
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .create-project-form input:focus,
 .create-project-form textarea:focus,
 .create-project-form select:focus {
   outline: none;
-  border-color: #00aaff;
-  box-shadow: 0 0 5px #00aaff;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.create-project-form input::placeholder,
+.create-project-form textarea::placeholder {
+  color: var(--text-subtle);
+}
+
+.create-project-form select option {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
 }
 
 .create-project-form textarea {
@@ -58,49 +77,44 @@
 }
 
 .create-project-form button[type='submit'] {
-  background-color: #0088cc;
+  background: linear-gradient(135deg, var(--accent-dark), var(--accent));
   color: #fff;
   border: none;
   border-radius: 8px;
-  padding: 0.9rem 0;
-  font-size: 1.1rem;
+  padding: 0.85rem 0;
+  font-size: 1rem;
   font-weight: 600;
+  font-family: inherit;
   cursor: pointer;
-  margin-top: 1.2rem;
+  margin-top: 0.5rem;
   width: 100%;
-  transition:
-    background-color 0.3s ease,
-    box-shadow 0.3s ease;
-  box-shadow:
-    0 0 5px #00aaff,
-    0 0 10px #00aaff;
+  transition: opacity 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 14px rgba(99, 102, 241, 0.25);
 }
 
 .create-project-form button[type='submit']:hover {
-  background-color: #00aaff;
-  box-shadow:
-    0 0 10px #00aaff,
-    0 0 20px #00aaff;
+  opacity: 0.88;
+  box-shadow: 0 4px 22px rgba(99, 102, 241, 0.4);
 }
 
 .error-message {
-  color: #ff4d4d;
-  background-color: rgba(255, 77, 77, 0.1);
-  border: 1px solid #ff4d4d;
-  border-radius: 6px;
-  padding: 0.7rem 1rem;
-  margin-top: 0.5rem;
+  color: #fca5a5;
+  background: rgba(252, 165, 165, 0.07);
+  border: 1px solid rgba(252, 165, 165, 0.2);
+  border-radius: 8px;
+  padding: 0.65rem 1rem;
   text-align: center;
+  font-size: 0.9rem;
 }
 
 .success-message {
-  color: #44cc44;
-  background-color: rgba(68, 204, 68, 0.1);
-  border: 1px solid #44cc44;
-  border-radius: 6px;
-  padding: 0.7rem 1rem;
-  margin-top: 0.5rem;
+  color: #6ee7b7;
+  background: rgba(110, 231, 183, 0.07);
+  border: 1px solid rgba(110, 231, 183, 0.2);
+  border-radius: 8px;
+  padding: 0.65rem 1rem;
   text-align: center;
+  font-size: 0.9rem;
 }
 
 .skills-input-container {
@@ -120,26 +134,27 @@
   top: 100%;
   left: 0;
   right: 0;
-  background-color: #2a2a2a;
-  border: 1px solid #444;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
   border-top: none;
   border-radius: 0 0 8px 8px;
-  max-height: 150px;
+  max-height: 160px;
   overflow-y: auto;
   z-index: 100;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
 .skill-suggestion-item {
-  padding: 8px 12px;
+  padding: 8px 14px;
   cursor: pointer;
-  font-size: 0.95em;
-  color: #e0e0e0;
-  transition: background-color 0.2s ease;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  transition: background 0.15s, color 0.15s;
 }
 
 .skill-suggestion-item:hover {
-  background-color: #3a3a3a;
+  background: rgba(99, 102, 241, 0.08);
+  color: var(--accent-light);
 }
 
 .skill-suggestion-item:last-child {
@@ -147,7 +162,5 @@
 }
 
 @media (max-width: 600px) {
-  .create-project-form {
-    padding: 1.5rem 1rem;
-  }
+  .create-project-form { padding: 1.5rem 1rem; }
 }

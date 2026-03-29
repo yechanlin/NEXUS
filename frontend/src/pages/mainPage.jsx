@@ -1,145 +1,95 @@
 import { useState, useEffect, useRef } from 'react';
 import '../styles/mainPage.css';
-import '../styles/navbar.css';
 import SwipeCard from '../components/SwipeCard';
 import { TbArrowBack } from 'react-icons/tb';
-import { IoChevronDown } from 'react-icons/io5';
-import { IoFilter } from 'react-icons/io5';
+import { IoChevronDown, IoFilter } from 'react-icons/io5';
+import { FiSearch } from 'react-icons/fi';
 import { API_ENDPOINTS } from '../config/api';
 import { ALL_AVAILABLE_SKILLS } from '../constants/skills';
-// import { useMapsLibrary } from '@vis.gl/react-google-maps'; // Disabled due to API key issues
+import { US_LOCATIONS } from '../data/autocompleteData';
 
 const MainPage = () => {
   const [projects, setProjects] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
-    category: '',
-    projectType: '',
-    skills: [],
-    location: '',
-    skillsRequired: '',
-    maxMembers: '',
+    category: '', projectType: '', skills: [],
+    location: '', skillsRequired: '', maxMembers: '',
   });
   const [swipeHistory, setSwipeHistory] = useState([]);
   const [isFilterExpanded, setIsFilterExpanded] = useState(false);
+
   const locationInputRef = useRef(null);
-  // const placesLib = useMapsLibrary('places'); // Disabled due to API key issues
+  const locationContainerRef = useRef(null);
   const skillsInputRef = useRef(null);
   const skillsSuggestionsContainerRef = useRef(null);
   const [skillSuggestions, setSkillSuggestions] = useState([]);
   const [showSkillSuggestions, setShowSkillSuggestions] = useState(false);
+  const [locationSuggestions, setLocationSuggestions] = useState([]);
+  const [showLocationSuggestions, setShowLocationSuggestions] = useState(false);
+
+  useEffect(() => { fetchProjects(); }, []);
+  useEffect(() => { setCurrentIndex(0); }, [filters]);
 
   useEffect(() => {
-    fetchProjects();
+    const handleClickOutside = (e) => {
+      if (
+        skillsInputRef.current && !skillsInputRef.current.contains(e.target) &&
+        !skillsSuggestionsContainerRef.current?.contains(e.target)
+      ) setShowSkillSuggestions(false);
+      if (locationContainerRef.current && !locationContainerRef.current.contains(e.target))
+        setShowLocationSuggestions(false);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Reset current index when filters change
-  useEffect(() => {
-    setCurrentIndex(0);
-  }, [filters]);
-
-  // Google Places Autocomplete disabled due to API key issues
-  // Location input now works as pure manual input
-
-  // Handle manual location input changes
-  const handleLocationChange = (e) => {
-    const value = e.target.value;
-    console.log('Location input changed to:', value);
-    setFilters((f) => ({ ...f, location: value }));
+  const generateLocationSuggestions = (query) => {
+    if (!query || query.length < 2) { setLocationSuggestions([]); setShowLocationSuggestions(false); return; }
+    const q = query.toLowerCase();
+    const results = US_LOCATIONS.filter(l => l.toLowerCase().includes(q)).slice(0, 8);
+    setLocationSuggestions(results);
+    setShowLocationSuggestions(results.length > 0);
   };
 
-
-  // Skills suggestions logic
   const generateSkillSuggestions = (inputString) => {
     const parts = inputString.split(',').map((s) => s.trim());
     const lastPart = (parts[parts.length - 1] || '').toLowerCase();
-
-    if (lastPart.length < 2) {
-      setSkillSuggestions([]);
-      setShowSkillSuggestions(false);
-      return;
-    }
-
+    if (lastPart.length < 2) { setSkillSuggestions([]); setShowSkillSuggestions(false); return; }
     const currentSkills = parts.slice(0, -1).map((s) => s.toLowerCase());
     const filtered = ALL_AVAILABLE_SKILLS.filter((skill) => {
-      const lowerCaseSkill = skill.toLowerCase();
-      return (
-        lowerCaseSkill.includes(lastPart) &&
-        !currentSkills.includes(lowerCaseSkill)
-      );
+      const lc = skill.toLowerCase();
+      return lc.includes(lastPart) && !currentSkills.includes(lc);
     }).slice(0, 7);
-
     setSkillSuggestions(filtered);
     setShowSkillSuggestions(filtered.length > 0);
   };
 
   const handleSkillSuggestionClick = (suggestedSkill) => {
-    const currentInput = filters.skillsRequired || '';
-    const parts = currentInput.split(',').map((s) => s.trim());
-    const lastPartIndex = Math.max(parts.length - 1, 0);
-
-    parts[lastPartIndex] = suggestedSkill;
-
+    const parts = (filters.skillsRequired || '').split(',').map((s) => s.trim());
+    parts[Math.max(parts.length - 1, 0)] = suggestedSkill;
     let newSkillsString = parts.filter(Boolean).join(', ');
-    if (suggestedSkill && !newSkillsString.endsWith(', ')) {
-      newSkillsString += ', ';
-    }
-
+    if (!newSkillsString.endsWith(', ')) newSkillsString += ', ';
     setFilters((prev) => ({ ...prev, skillsRequired: newSkillsString }));
     setSkillSuggestions([]);
     setShowSkillSuggestions(false);
     skillsInputRef.current?.focus();
   };
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        skillsInputRef.current &&
-        !skillsInputRef.current.contains(event.target) &&
-        !skillsSuggestionsContainerRef.current?.contains(event.target)
-      ) {
-        setShowSkillSuggestions(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
   const fetchProjects = async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      if (!token) {
-        console.error('No token found');
-        window.location.href = '/login';
-        return;
-      }
-
+      if (!token) { window.location.href = '/login'; return; }
       const response = await fetch(`${API_ENDPOINTS.projects}/fetch`, {
         method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       });
-
-      console.log('Response status:', response.status);
-
-      if (response.status === 401) {
-        localStorage.removeItem('token');
-        window.location.href = '/login';
-        return;
-      }
-
+      if (response.status === 401) { localStorage.removeItem('token'); window.location.href = '/login'; return; }
       const data = await response.json();
-      console.log('Projects data:', data);
-
       if (data.status === 'success' && Array.isArray(data.data?.projects)) {
         setProjects(data.data.projects);
         setCurrentIndex(0);
-      } else {
-        console.error('Invalid project data format:', data);
       }
     } catch (error) {
       console.error('Error fetching projects:', error);
@@ -155,74 +105,38 @@ const MainPage = () => {
       if (direction === 'right') {
         await fetch(`${API_ENDPOINTS.projects}/${currentProject._id}/apply`, {
           method: 'POST',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
         });
       } else if (direction === 'left') {
         await fetch(API_ENDPOINTS.skipProject(currentProject._id), {
           method: 'POST',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
         });
       }
-      // Add to swipe history
-      setSwipeHistory((prev) => [
-        ...prev,
-        { projectIndex: currentIndex, direction },
-      ]);
-      // Move to next project
-      if (currentIndex < projects.length - 1) {
-        setCurrentIndex((prev) => prev + 1);
-      } else {
-        // Fetch more projects when we run out
-        fetchProjects();
-      }
+      setSwipeHistory((prev) => [...prev, { projectIndex: currentIndex, direction }]);
+      if (currentIndex < projects.length - 1) setCurrentIndex((prev) => prev + 1);
+      else fetchProjects();
     } catch (error) {
       console.error('Error handling swipe:', error);
     }
   };
 
-  // Handle save (upward swipe)
   const handleSave = async () => {
     const currentProject = projects[currentIndex];
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(
-        `${API_ENDPOINTS.projects}/${currentProject._id}/save`,
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        },
-      );
-      const data = await response.json();
-      if (data.status === 'success') {
-        console.log('Project saved!');
-      } else {
-        console.error('Save failed:', data);
-      }
+      await fetch(`${API_ENDPOINTS.projects}/${currentProject._id}/save`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      });
     } catch (error) {
       console.error('Error saving project:', error);
     }
-    // Advance card (like a swipe)
-    setSwipeHistory((prev) => [
-      ...prev,
-      { projectIndex: currentIndex, direction: 'up' },
-    ]);
-    if (currentIndex < projects.length - 1) {
-      setCurrentIndex((prev) => prev + 1);
-    } else {
-      fetchProjects();
-    }
+    setSwipeHistory((prev) => [...prev, { projectIndex: currentIndex, direction: 'up' }]);
+    if (currentIndex < projects.length - 1) setCurrentIndex((prev) => prev + 1);
+    else fetchProjects();
   };
 
-  // Handle going back to previous card
   const handleBack = () => {
     if (swipeHistory.length === 0) return;
     const last = swipeHistory[swipeHistory.length - 1];
@@ -230,327 +144,227 @@ const MainPage = () => {
     setSwipeHistory((prev) => prev.slice(0, -1));
   };
 
+  const clearFilters = () => setFilters({ category: '', projectType: '', skills: [], location: '', skillsRequired: '', maxMembers: '' });
+
+  const filteredProjects = projects.filter((project) => {
+    if (filters.category && project.category !== filters.category) return false;
+    if (filters.projectType && project.projectType !== filters.projectType) return false;
+    if (filters.location && !project.location?.toLowerCase().includes(filters.location.toLowerCase())) return false;
+    if (filters.skills?.length > 0) {
+      const projectSkills = project.skillsRequired || [];
+      if (!filters.skills.some(fs => projectSkills.some(ps => ps.toLowerCase().includes(fs.toLowerCase())))) return false;
+    }
+    if (filters.skillsRequired && !project.skillsRequired?.some(s => s.toLowerCase().includes(filters.skillsRequired.toLowerCase()))) return false;
+    if (filters.maxMembers && project.maxMembers > parseInt(filters.maxMembers)) return false;
+    return true;
+  });
+
+  const hasActiveFilters = Object.values(filters).some(v =>
+    v !== '' && v !== null && v !== undefined && (Array.isArray(v) ? v.length > 0 : true)
+  );
+
+  const safeIndex = Math.min(currentIndex, filteredProjects.length - 1);
+
   return (
     <div className="main-page">
       <main className="main-content">
-        {/* Filter UI */}
-        <div className="mx-auto mb-6 w-full max-w-2xl">
-          <div className="rounded-2xl border border-gray-700/50 bg-gray-800/80 shadow-2xl backdrop-blur-sm">
-            {/* Filter Header - Always Visible */}
-            <div className="flex items-center justify-between p-4">
-              <div className="flex items-center gap-2">
-                <IoFilter className="h-5 w-5 text-blue-400" />
-                <span className="text-sm font-medium text-gray-300">
-                  Filters
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  className="rounded-lg bg-gray-700 px-3 py-1 text-sm text-gray-300 transition-colors hover:bg-gray-600"
-                  onClick={() =>
-                    setFilters({
-                      category: '',
-                      projectType: '',
-                      skills: [],
-                      location: '',
-                      skillsRequired: '',
-                      maxMembers: '',
-                    })
-                  }
-                >
-                  Clear All
-                </button>
-                <button
-                  className="flex items-center gap-2 rounded-lg bg-gray-700 px-3 py-1 text-sm text-gray-300 transition-colors hover:bg-gray-600"
-                  onClick={() => setIsFilterExpanded(!isFilterExpanded)}
-                >
-                  <span>{isFilterExpanded ? 'Hide' : 'Show'} Filters</span>
-                  <IoChevronDown
-                    className={`h-4 w-4 transition-transform duration-200 ${
-                      isFilterExpanded ? 'rotate-180' : ''
-                    }`}
-                  />
-                </button>
-              </div>
+
+        {/* Filter bar */}
+        <div className="filter-bar">
+          <div className="filter-header">
+            <div className="filter-header-left">
+              <IoFilter size={16} style={{ color: 'var(--accent-light)' }} />
+              <span className="filter-title">Filters</span>
+              {hasActiveFilters && <span className="filter-active-dot" />}
             </div>
+            <div className="filter-header-right">
+              {hasActiveFilters && (
+                <button className="filter-clear-btn" onClick={clearFilters}>Clear All</button>
+              )}
+              <button
+                className="filter-toggle-btn"
+                onClick={() => setIsFilterExpanded(!isFilterExpanded)}
+              >
+                <span>{isFilterExpanded ? 'Hide' : 'Show'} Filters</span>
+                <IoChevronDown
+                  size={15}
+                  style={{
+                    transition: 'transform 0.25s',
+                    transform: isFilterExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                  }}
+                />
+              </button>
+            </div>
+          </div>
 
-            {/* Collapsible Filter Content */}
-            <div
-              className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                isFilterExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-              }`}
-            >
-              <div className="border-t border-gray-700/50 p-6">
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  {/* Category & Project Type Row */}
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-300">
-                      Category
-                    </label>
-                    <div className="relative">
-                      <select
-                        value={filters.category}
-                        onChange={(e) =>
-                          setFilters((f) => ({
-                            ...f,
-                            category: e.target.value,
-                          }))
-                        }
-                        className="w-full appearance-none rounded-xl border border-gray-600 bg-gray-900 px-4 py-3 text-white transition-colors focus:border-blue-400 focus:outline-none"
-                      >
-                        <option value="">All Categories</option>
-                        <option value="Software">Software</option>
-                        <option value="Design">Design</option>
-                        <option value="Research">Research</option>
-                        <option value="Business">Business</option>
-                        <option value="Competition">Competition</option>
-                      </select>
-                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4">
-                        <IoChevronDown className="h-4 w-4 text-gray-400" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-300">
-                      Project Type
-                    </label>
-                    <div className="relative">
-                      <select
-                        value={filters.projectType}
-                        onChange={(e) =>
-                          setFilters((f) => ({
-                            ...f,
-                            projectType: e.target.value,
-                          }))
-                        }
-                        className="w-full appearance-none rounded-xl border border-gray-600 bg-gray-900 px-4 py-3 text-white transition-colors focus:border-blue-400 focus:outline-none"
-                      >
-                        <option value="">All Types</option>
-                        <option value="Academic">Academic</option>
-                        <option value="Professional">Professional</option>
-                        <option value="Hobby">Hobby</option>
-                        <option value="Startup">Startup</option>
-                        <option value="Hackathon">Hackathon</option>
-                      </select>
-                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4">
-                        <IoChevronDown className="h-4 w-4 text-gray-400" />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Location & Skills Row */}
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-300">
-                      Location
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Enter location (e.g., New York, Remote, California)..."
-                      ref={locationInputRef}
-                      value={filters.location}
-                      onChange={handleLocationChange}
-                      className="w-full rounded-xl border border-gray-600 bg-gray-900 px-4 py-3 text-white placeholder-gray-400 transition-colors focus:border-blue-400 focus:outline-none"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-300">
-                      Skills
-                    </label>
-                    <div className="relative">
-                      <input
-                        ref={skillsInputRef}
-                        type="text"
-                        placeholder="Enter skills..."
-                        value={filters.skillsRequired}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          setFilters((f) => ({ ...f, skillsRequired: value }));
-                          generateSkillSuggestions(value);
-                        }}
-                        onFocus={() =>
-                          generateSkillSuggestions(filters.skillsRequired)
-                        }
-                        className="w-full rounded-xl border border-gray-600 bg-gray-900 px-4 py-3 text-white placeholder-gray-400 transition-colors focus:border-blue-400 focus:outline-none"
-                      />
-                      {showSkillSuggestions && skillSuggestions.length > 0 && (
-                        <div
-                          ref={skillsSuggestionsContainerRef}
-                          className="absolute z-20 mt-2 max-h-60 w-full overflow-auto rounded-xl border border-gray-700 bg-gray-800 shadow-xl"
-                        >
-                          {skillSuggestions.map((skill) => (
-                            <div
-                              key={skill}
-                              onClick={() => handleSkillSuggestionClick(skill)}
-                              className="cursor-pointer px-4 py-2 text-sm text-gray-200 hover:bg-gray-700"
-                            >
-                              {skill}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Max Members */}
-                  <div className="space-y-2 md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-300">
-                      Max Team Size
-                    </label>
-                    <input
-                      type="number"
-                      placeholder="Enter max members..."
-                      value={filters.maxMembers}
-                      onChange={(e) =>
-                        setFilters((f) => ({
-                          ...f,
-                          maxMembers: e.target.value,
-                        }))
-                      }
-                      className="w-full rounded-xl border border-gray-600 bg-gray-900 px-4 py-3 text-white placeholder-gray-400 transition-colors focus:border-blue-400 focus:outline-none"
-                      min="1"
-                    />
-                  </div>
+          <div className={`filter-body ${isFilterExpanded ? 'filter-body-open' : ''}`}>
+            <div className="filter-grid">
+              <div className="filter-field">
+                <label className="filter-label">Category</label>
+                <div className="filter-select-wrap">
+                  <select
+                    value={filters.category}
+                    onChange={(e) => setFilters((f) => ({ ...f, category: e.target.value }))}
+                    className="filter-select"
+                  >
+                    <option value="">All Categories</option>
+                    <option value="Software">Software</option>
+                    <option value="Design">Design</option>
+                    <option value="Research">Research</option>
+                    <option value="Business">Business</option>
+                    <option value="Competition">Competition</option>
+                  </select>
+                  <IoChevronDown size={13} className="filter-select-icon" />
                 </div>
+              </div>
+
+              <div className="filter-field">
+                <label className="filter-label">Project Type</label>
+                <div className="filter-select-wrap">
+                  <select
+                    value={filters.projectType}
+                    onChange={(e) => setFilters((f) => ({ ...f, projectType: e.target.value }))}
+                    className="filter-select"
+                  >
+                    <option value="">All Types</option>
+                    <option value="Academic">Academic</option>
+                    <option value="Professional">Professional</option>
+                    <option value="Hobby">Hobby</option>
+                    <option value="Startup">Startup</option>
+                    <option value="Hackathon">Hackathon</option>
+                  </select>
+                  <IoChevronDown size={13} className="filter-select-icon" />
+                </div>
+              </div>
+
+              <div className="filter-field" ref={locationContainerRef} style={{ position: 'relative' }}>
+                <label className="filter-label">Location</label>
+                <input
+                  type="text"
+                  placeholder="e.g. New York, Remote..."
+                  ref={locationInputRef}
+                  value={filters.location}
+                  autoComplete="off"
+                  onChange={(e) => {
+                    setFilters((f) => ({ ...f, location: e.target.value }));
+                    generateLocationSuggestions(e.target.value);
+                  }}
+                  onFocus={() => generateLocationSuggestions(filters.location)}
+                  className="filter-input"
+                />
+                {showLocationSuggestions && locationSuggestions.length > 0 && (
+                  <div className="filter-suggestions-dropdown">
+                    {locationSuggestions.map((loc) => (
+                      <div
+                        key={loc}
+                        className="filter-suggestion-item"
+                        onMouseDown={() => {
+                          setFilters((f) => ({ ...f, location: loc }));
+                          setShowLocationSuggestions(false);
+                        }}
+                      >
+                        {loc}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="filter-field" style={{ position: 'relative' }}>
+                <label className="filter-label">Skills</label>
+                <input
+                  ref={skillsInputRef}
+                  type="text"
+                  placeholder="e.g. React, Python..."
+                  value={filters.skillsRequired}
+                  autoComplete="off"
+                  onChange={(e) => {
+                    setFilters((f) => ({ ...f, skillsRequired: e.target.value }));
+                    generateSkillSuggestions(e.target.value);
+                  }}
+                  onFocus={() => generateSkillSuggestions(filters.skillsRequired)}
+                  className="filter-input"
+                />
+                {showSkillSuggestions && skillSuggestions.length > 0 && (
+                  <div ref={skillsSuggestionsContainerRef} className="filter-suggestions-dropdown">
+                    {skillSuggestions.map((skill) => (
+                      <div
+                        key={skill}
+                        className="filter-suggestion-item"
+                        onMouseDown={() => handleSkillSuggestionClick(skill)}
+                      >
+                        {skill}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="filter-field filter-field-full">
+                <label className="filter-label">Max Team Size</label>
+                <input
+                  type="number"
+                  placeholder="e.g. 5"
+                  value={filters.maxMembers}
+                  onChange={(e) => setFilters((f) => ({ ...f, maxMembers: e.target.value }))}
+                  className="filter-input"
+                  min="1"
+                />
               </div>
             </div>
           </div>
         </div>
-        {/* End Filter UI */}
 
-        {/* Back Button */}
-        <div className="mx-auto mb-4 flex w-full max-w-2xl justify-end">
+        {/* Go Back button */}
+        <div className="back-btn-row">
           <button
-            className="group flex items-center gap-2 rounded-xl border border-gray-600 bg-gray-800 px-4 py-3 text-white transition-all hover:border-blue-400 hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="back-btn"
             onClick={handleBack}
             disabled={swipeHistory.length === 0}
           >
-            <TbArrowBack className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
-            <span className="text-sm font-medium">Go Back</span>
+            <TbArrowBack size={16} />
+            <span>Go Back</span>
           </button>
         </div>
+
+        {/* Cards */}
         {loading ? (
-          <div className="loading-spinner">Loading projects...</div>
-        ) : projects.length > 0 ? (
-          <div className="card-stack">
-            {console.log('Current index:', currentIndex)}
-            {console.log('Current project:', projects[currentIndex])}
-            {(() => {
-              console.log('Current filters:', filters);
-              console.log('Total projects:', projects.length);
-              console.log('Sample project data:', projects[0]);
-
-              // Apply filters to projects
-              const filteredProjects = projects.filter((project) => {
-                // Category filter
-                if (filters.category && project.category !== filters.category) {
-                  return false;
-                }
-
-                // Project type filter
-                if (filters.projectType && project.projectType !== filters.projectType) {
-                  return false;
-                }
-
-                // Location filter (case-insensitive partial match)
-                if (filters.location && 
-                    !project.location.toLowerCase().includes(filters.location.toLowerCase())) {
-                  return false;
-                }
-
-                // Skills filter (check if any of the required skills match the filter)
-                if (filters.skills && filters.skills.length > 0) {
-                  const projectSkills = project.skillsRequired || [];
-                  const hasMatchingSkill = filters.skills.some(filterSkill => 
-                    projectSkills.some(projectSkill => 
-                      projectSkill.toLowerCase().includes(filterSkill.toLowerCase())
-                    )
-                  );
-                  if (!hasMatchingSkill) {
-                    return false;
-                  }
-                }
-
-                // Skills required filter (partial match)
-                if (filters.skillsRequired && 
-                    !project.skillsRequired.some(skill => 
-                      skill.toLowerCase().includes(filters.skillsRequired.toLowerCase())
-                    )) {
-                  return false;
-                }
-
-                // Max members filter
-                if (filters.maxMembers && project.maxMembers > parseInt(filters.maxMembers)) {
-                  return false;
-                }
-
-                return true;
-              });
-
-              console.log(
-                'Filtered projects count:',
-                filteredProjects.length,
-              );
-
-              if (filteredProjects.length === 0) {
-                const hasActiveFilters = Object.values(filters).some(value => 
-                  value !== '' && value !== null && value !== undefined && 
-                  (Array.isArray(value) ? value.length > 0 : true)
-                );
-                
-                return (
-                  <div className="no-projects">
-                    <h3>No projects found</h3>
-                    <p>
-                      {hasActiveFilters 
-                        ? "No projects match your current filters. Try adjusting your search criteria."
-                        : "No projects found in the database"
-                      }
-                    </p>
-                    {hasActiveFilters && (
-                      <button 
-                        className="refresh-button" 
-                        onClick={() => setFilters({
-                          category: '',
-                          projectType: '',
-                          skills: [],
-                          location: '',
-                          skillsRequired: '',
-                          maxMembers: '',
-                        })}
-                      >
-                        Clear Filters
-                      </button>
-                    )}
-                  </div>
-                );
-              }
-
-              // Adjust currentIndex if out of bounds
-              const safeIndex = Math.min(
-                currentIndex,
-                filteredProjects.length - 1,
-              );
-              return (
-                safeIndex >= 0 && (
-                  <SwipeCard
-                    key={filteredProjects[safeIndex]._id}
-                    project={filteredProjects[safeIndex]}
-                    onSwipe={handleSwipe}
-                    onSave={handleSave}
-                  />
-                )
-              );
-            })()}
+          <div className="main-loading">
+            <div className="main-loading-spinner" />
+            <p>Finding projects for you…</p>
+          </div>
+        ) : filteredProjects.length === 0 ? (
+          <div className="no-projects-state">
+            <div className="no-projects-icon">
+              <FiSearch size={32} />
+            </div>
+            <h3>No projects found</h3>
+            <p>
+              {hasActiveFilters
+                ? 'Try adjusting your filters to discover more projects.'
+                : 'No new projects are available right now.'}
+            </p>
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+              {hasActiveFilters && (
+                <button className="state-btn state-btn-secondary" onClick={clearFilters}>
+                  Clear Filters
+                </button>
+              )}
+              <button className="state-btn state-btn-primary" onClick={fetchProjects}>
+                Refresh
+              </button>
+            </div>
           </div>
         ) : (
-          <div className="no-projects">
-            <h3>No projects available</h3>
-            <p>Current projects array length: {projects.length}</p>
-            <button className="refresh-button" onClick={fetchProjects}>
-              Refresh
-            </button>
+          <div className="card-stack">
+            {safeIndex >= 0 && (
+              <SwipeCard
+                key={filteredProjects[safeIndex]._id}
+                project={filteredProjects[safeIndex]}
+                onSwipe={handleSwipe}
+                onSave={handleSave}
+              />
+            )}
           </div>
         )}
       </main>
