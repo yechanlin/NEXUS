@@ -56,12 +56,16 @@ const login = catchAsync(async (req, res, next) => {
   if (!email || !password) {
     return next(new AppError('Please provide email and password!', 400));
   }
-  // 2) Check if user exists && password is correct
+  // 2) Check if user exists
   const user = await User.findOne({ email }).select('+password');
-  console.log('User found:', user ? 'yes' : 'no');
 
-  if (!user || !(await user.correctPassword(password, user.password))) {
-    return next(new AppError('Incorrect email or password', 401));
+  if (!user) {
+    return next(new AppError('No account found with this email. Please sign up first.', 401));
+  }
+
+  // 3) Check if password is correct
+  if (!(await user.correctPassword(password, user.password))) {
+    return next(new AppError('Incorrect password', 401));
   }
 
   // 3) If everything ok, send token to client

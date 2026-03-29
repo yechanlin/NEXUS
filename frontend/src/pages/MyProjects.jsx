@@ -166,10 +166,11 @@ const MyProjects = () => {
                             value={editForm.projectType}
                             onChange={(e) => handleInputChange('projectType', e.target.value)}
                           >
-                            <option value="personal">Personal</option>
-                            <option value="academic">Academic</option>
-                            <option value="professional">Professional</option>
-                            <option value="open-source">Open Source</option>
+                            <option value="Academic">Academic</option>
+                            <option value="Professional">Professional</option>
+                            <option value="Hobby">Hobby</option>
+                            <option value="Startup">Startup</option>
+                            <option value="Hackathon">Hackathon</option>
                           </select>
                         </div>
                         <div className="form-group">
@@ -178,13 +179,11 @@ const MyProjects = () => {
                             value={editForm.category}
                             onChange={(e) => handleInputChange('category', e.target.value)}
                           >
-                            <option value="technology">Technology</option>
-                            <option value="business">Business</option>
-                            <option value="healthcare">Healthcare</option>
-                            <option value="education">Education</option>
-                            <option value="environment">Environment</option>
-                            <option value="social">Social</option>
-                            <option value="other">Other</option>
+                            <option value="Software">Software</option>
+                            <option value="Design">Design</option>
+                            <option value="Research">Research</option>
+                            <option value="Business">Business</option>
+                            <option value="Competition">Competition</option>
                           </select>
                         </div>
                       </div>
@@ -221,9 +220,7 @@ const MyProjects = () => {
                           onChange={(e) => handleInputChange('status', e.target.value)}
                         >
                           <option value="open">Open</option>
-                          <option value="in-progress">In Progress</option>
-                          <option value="completed">Completed</option>
-                          <option value="on-hold">On Hold</option>
+                          <option value="closed">Closed</option>
                         </select>
                       </div>
                       <div className="edit-actions">

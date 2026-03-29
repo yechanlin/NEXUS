@@ -1,8 +1,11 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/profilesetup.css';
+import { API_ENDPOINTS } from '../config/api';
+import { AuthContext } from '../context/AuthContext';
 
 const ProfileSetup = () => {
+  const { user, updateProfileData } = useContext(AuthContext);
   const [formData, setFormData] = useState({
     profileImage: '',
     userName: '',
@@ -11,6 +14,7 @@ const ProfileSetup = () => {
     fieldOfStudy: '',
     bio: '',
   });
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -29,11 +33,46 @@ const ProfileSetup = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
+    setError('');
 
-    navigate('/mainPage');
+    const token = localStorage.getItem('token');
+    const userId = user?.id || user?._id;
+    if (!token || !userId) {
+      setError('You must be logged in. Please sign up or log in first.');
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_ENDPOINTS.users}/profilesetup`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          userId: userId,
+          profileImage: formData.profileImage,
+          userName: formData.userName,
+          dateOfBirth: formData.dateOfBirth,
+          school: formData.school,
+          fieldOfStudy: formData.fieldOfStudy,
+          bio: formData.bio,
+        }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        updateProfileData(formData);
+        navigate('/mainPage');
+      } else {
+        setError(data.message || 'Failed to save profile.');
+      }
+    } catch (err) {
+      console.error('Profile setup error:', err);
+      setError('Failed to save profile. Please try again.');
+    }
   };
 
   return (
@@ -114,7 +153,8 @@ const ProfileSetup = () => {
             value={formData.bio}
             onChange={handleChange}
           ></textarea>
-          <button type="submit" onClick={handleSubmit}>
+          {error && <div style={{ color: '#ff4d4d', textAlign: 'center', marginBottom: '10px' }}>{error}</div>}
+          <button type="submit">
             Create Profile
           </button>
         </form>

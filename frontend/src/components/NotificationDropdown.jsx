@@ -15,7 +15,7 @@ const NotificationDropdown = ({ onClose, onUnreadCountChange }) => {
   const fetchNotifications = async () => {
     setLoading(true);
     try {
-      const response = await apiCall('/api/users/notifications');
+      const response = await apiCall(API_ENDPOINTS.notifications);
       if (response.status === 'success') {
         setNotifications(response.data.notifications);
         // Calculate and pass unread count to parent

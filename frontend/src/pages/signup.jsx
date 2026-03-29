@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../styles/signup.css';
 import { API_ENDPOINTS } from '../config/api';
+import { AuthContext } from '../context/AuthContext';
 
 const Signup = () => {
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -53,6 +55,15 @@ const Signup = () => {
         const responseData = await response.json();
         if (!response.ok) {
           throw new Error(responseData.message || 'Failed to sign up');
+        }
+        if (responseData.token) {
+          localStorage.setItem('token', responseData.token);
+          const userData = {
+            ...responseData.data.user,
+            id: responseData.data.user._id || responseData.data.user.id,
+            token: responseData.token,
+          };
+          login(userData);
         }
         navigate('/profilesetup');
       } else {

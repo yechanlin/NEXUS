@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useContext } from 'react';
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   useLocation,
+  Navigate,
 } from 'react-router-dom';
 import Signup from './pages/signup';
 import Login from './pages/login';
@@ -105,9 +106,19 @@ function App() {
   );
 }
 
+function ProtectedRoute({ children }) {
+  const { user } = useContext(AuthContext);
+  const token = localStorage.getItem('token');
+
+  if (!user && !token) {
+    return <Navigate to="/" replace />;
+  }
+  return children;
+}
+
 function AppContent() {
   const location = useLocation();
-  const showNavbar = !['/', '/signup', '/profilesetup'].includes(
+  const showNavbar = !['/', '/login', '/signup', '/profilesetup'].includes(
     location.pathname,
   );
 
@@ -117,14 +128,15 @@ function AppContent() {
       <main className="content-wrapper">
         <Routes>
           <Route path="/" element={<Login />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/profilesetup" element={<ProfileSetup />} />
-          <Route path="/mainPage" element={<MainPage />} />
-          <Route path="/create-project" element={<CreateProject />} />
-          <Route path="/my-projects" element={<MyProjects />} />
-          <Route path="/recruiter" element={<Recruiter />} />
-          <Route path="/searcher" element={<Searcher />} />
-          <Route path="/profile-edit" element={<ProfileEdit />} />
+          <Route path="/mainPage" element={<ProtectedRoute><MainPage /></ProtectedRoute>} />
+          <Route path="/create-project" element={<ProtectedRoute><CreateProject /></ProtectedRoute>} />
+          <Route path="/my-projects" element={<ProtectedRoute><MyProjects /></ProtectedRoute>} />
+          <Route path="/recruiter" element={<ProtectedRoute><Recruiter /></ProtectedRoute>} />
+          <Route path="/searcher" element={<ProtectedRoute><Searcher /></ProtectedRoute>} />
+          <Route path="/profile-edit" element={<ProtectedRoute><ProfileEdit /></ProtectedRoute>} />
         </Routes>
       </main>
     </>

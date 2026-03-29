@@ -1,6 +1,7 @@
 import { factory } from './handlerFactory.js';
 import User from "../models/User.js";
 import { catchAsync } from "../utils/catchAsync.js";
+import { AppError } from "../utils/apperror.js";
 
 const userController = {
   // Basic CRUD operations using factory

@@ -20,13 +20,13 @@ router.post("/logout", authController.logout);
 // Get all users
 router.get("/", userController.getAllUsers);
 
-// Get a user
-router.get("/:id", userController.getUser);
+// Get notifications for the logged-in user (must be before /:id)
+router.get('/notifications', authController.protect, getNotifications);
 
 // Update the user profile
-router.patch("/profilesetup", userController.updateUserProfile);
+router.patch("/profilesetup", authController.protect, userController.updateUserProfile);
 
-// Get notifications for the logged-in user
-router.get('/notifications', authController.protect, getNotifications);
+// Get a user
+router.get("/:id", userController.getUser);
 
 export default router;
