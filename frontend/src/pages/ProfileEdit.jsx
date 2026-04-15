@@ -1,4 +1,5 @@
 import { useState, useEffect, useContext, useRef } from 'react';
+import PropTypes from 'prop-types';
 import { FiEdit2 } from 'react-icons/fi';
 import { AuthContext } from '../context/AuthContext';
 import { API_ENDPOINTS } from '../config/api';
@@ -90,6 +91,15 @@ const AutocompleteInput = ({ label, name, value, onChange, disabled, list }) => 
       )}
     </div>
   );
+};
+
+AutocompleteInput.propTypes = {
+  label: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
+  value: PropTypes.string.isRequired,
+  onChange: PropTypes.func.isRequired,
+  disabled: PropTypes.bool,
+  list: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
 
 const ProfileEdit = () => {
@@ -210,7 +220,7 @@ const ProfileEdit = () => {
     try {
       const updateData = {
         userId: user.id,
-        profileImage: formData.profileImage,
+        profilePicture: formData.profileImage,
         userName: formData.userName,
         dateOfBirth: formData.dateOfBirth,
         school: formData.school,

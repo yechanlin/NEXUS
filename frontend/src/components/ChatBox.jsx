@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useContext, useCallback } from 'react';
-import { FiMessageSquare, FiX, FiSend, FiChevronLeft, FiCircle } from 'react-icons/fi';
+import { FiMessageSquare, FiX, FiSend, FiChevronLeft } from 'react-icons/fi';
 import { AuthContext } from '../context/AuthContext';
 import { API_ENDPOINTS } from '../config/api';
 import '../styles/chat.css';
@@ -28,7 +28,7 @@ const ChatBox = () => {
       });
       const data = await res.json();
       if (data.status === 'success') setChats(data.data.chats);
-    } catch (e) {
+    } catch {
       // silently fail
     } finally {
       setLoadingChats(false);
@@ -45,7 +45,7 @@ const ChatBox = () => {
       if (data.status === 'success') {
         setMessages(data.data.messages);
       }
-    } catch (e) {
+    } catch {
       // silently fail
     }
   }, [token]);
@@ -75,7 +75,20 @@ const ChatBox = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  const getLastOpened = (projectId) => {
+    const stored = localStorage.getItem(`chat_last_opened_${projectId}`);
+    return stored ? new Date(stored) : null;
+  };
+
+  const hasUnread = chats.some((chat) => {
+    if (!chat.lastMessage) return false;
+    const lastOpened = getLastOpened(chat.projectId);
+    if (!lastOpened) return true;
+    return new Date(chat.lastMessage.createdAt) > lastOpened;
+  });
+
   const openChat = (chat) => {
+    localStorage.setItem(`chat_last_opened_${chat.projectId}`, new Date().toISOString());
     setActiveChat({ projectId: chat.projectId, projectTitle: chat.projectTitle });
     setMessages([]);
   };
@@ -104,7 +117,7 @@ const ChatBox = () => {
         setMessages((prev) => [...prev, data.data.message]);
         setInputText('');
       }
-    } catch (e) {
+    } catch {
       // silently fail
     } finally {
       setSending(false);
@@ -146,7 +159,7 @@ const ChatBox = () => {
         aria-label="Open chat"
       >
         {isOpen ? <FiX size={22} /> : <FiMessageSquare size={22} />}
-        {!isOpen && chats.length > 0 && (
+        {!isOpen && hasUnread && (
           <span className="chatbox-unread-dot" />
         )}
       </button>
@@ -170,7 +183,7 @@ const ChatBox = () => {
                   <div className="chatbox-empty">
                     <FiMessageSquare size={32} className="chatbox-empty-icon" />
                     <p>No chats yet.</p>
-                    <span>Chats appear once you're accepted into a project.</span>
+                    <span>Chats appear once you&apos;re accepted into a project.</span>
                   </div>
                 ) : (
                   chats.map((chat) => (

@@ -18,6 +18,7 @@ export const API_ENDPOINTS = {
     `${API_BASE_URL}/api/projects/${projectId}/applications/${applicationId}`,
   skipProject: (projectId) => `${API_BASE_URL}/api/projects/${projectId}/skip`,
   notifications: `${API_BASE_URL}/api/users/notifications`,
+  markNotificationsRead: `${API_BASE_URL}/api/users/notifications/read-all`,
   profileSetup: `${API_BASE_URL}/api/users/profilesetup`,
   chat: `${API_BASE_URL}/api/chat`,
   chatMessages: (projectId) => `${API_BASE_URL}/api/chat/${projectId}`,

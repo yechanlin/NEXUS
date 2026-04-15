@@ -42,4 +42,13 @@ export const getNotifications = catchAsync(async (req, res, next) => {
   });
 });
 
+export const markNotificationsRead = catchAsync(async (req, res, next) => {
+  const userId = req.user._id;
+  await User.updateOne(
+    { _id: userId },
+    { $set: { 'notifications.$[].read': true } }
+  );
+  res.status(200).json({ status: 'success' });
+});
+
 export default userController;

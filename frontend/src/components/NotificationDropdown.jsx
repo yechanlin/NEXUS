@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
 import { API_ENDPOINTS, apiCall } from '../config/api';
 import { FiCheckCircle, FiInfo, FiXCircle, FiX } from 'react-icons/fi';
 
@@ -7,10 +8,18 @@ const NotificationDropdown = ({ onClose, onUnreadCountChange }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchNotifications();
-    // Optionally mark all as read here
+    fetchNotifications().then(() => markAllRead());
     // eslint-disable-next-line
   }, []);
+
+  const markAllRead = async () => {
+    try {
+      await apiCall(API_ENDPOINTS.markNotificationsRead, { method: 'PATCH' });
+      if (onUnreadCountChange) onUnreadCountChange(0);
+    } catch {
+      // silently fail
+    }
+  };
 
   const fetchNotifications = async () => {
     setLoading(true);
@@ -24,7 +33,7 @@ const NotificationDropdown = ({ onClose, onUnreadCountChange }) => {
           onUnreadCountChange(unreadCount);
         }
       }
-    } catch (error) {
+    } catch {
       // Handle error
     } finally {
       setLoading(false);
@@ -81,4 +90,9 @@ const NotificationDropdown = ({ onClose, onUnreadCountChange }) => {
   );
 };
 
-export default NotificationDropdown; 
+NotificationDropdown.propTypes = {
+  onClose: PropTypes.func.isRequired,
+  onUnreadCountChange: PropTypes.func,
+};
+
+export default NotificationDropdown;
