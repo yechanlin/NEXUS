@@ -19,6 +19,9 @@ const signup = catchAsync(async (req, res, next) => {
   if (!email || !password || !passwordConfirm) {
     return next(new AppError("Email, password and password confirmation are required.", 400));
   }
+  if (password.length < 8) {
+    return next(new AppError("Password must be at least 8 characters.", 400));
+  }
   if (password !== passwordConfirm) {
     return next(new AppError("Passwords do not match.", 400));
   }
