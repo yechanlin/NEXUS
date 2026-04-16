@@ -34,6 +34,11 @@ const userSchema = new mongoose.Schema({
     ref: 'Project',
     default: []
   }],
+  savedProjects: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Project',
+    default: []
+  }],
   notifications: [{
     type: {
       type: String, // e.g., 'application_status', 'new_application'

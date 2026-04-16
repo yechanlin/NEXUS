@@ -50,7 +50,6 @@ const signup = catchAsync(async (req, res, next) => {
 // Login Controller
 const login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
-  console.log('Login attempt for:', email);
 
   // 1) Check if email and password exist
   if (!email || !password) {
@@ -70,7 +69,6 @@ const login = catchAsync(async (req, res, next) => {
 
   // 3) If everything ok, send token to client
   const token = signToken(user._id);
-  console.log('Login successful, token generated');
 
   res.status(200).json({
     status: 'success',
@@ -86,12 +84,9 @@ const login = catchAsync(async (req, res, next) => {
 
 // Protect Middleware (Authorization)
 const protect = catchAsync(async (req, res, next) => {
-  console.log('Headers:', req.headers);
-
   let token;
   if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
     token = req.headers.authorization.split(" ")[1];
-    console.log('Extracted token:', token);
   }
 
   if (!token) {
@@ -100,8 +95,6 @@ const protect = catchAsync(async (req, res, next) => {
 
   try {
     const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-    console.log('Token decoded:', decoded);
-
     const currentUser = await User.findById(decoded.id);
     if (!currentUser) {
       return next(new AppError("User not found", 401));
@@ -109,8 +102,7 @@ const protect = catchAsync(async (req, res, next) => {
 
     req.user = currentUser;
     next();
-  } catch (error) {
-    console.error('Token verification error:', error);
+  } catch {
     return next(new AppError("Invalid token. Please log in again.", 401));
   }
 });

@@ -7,6 +7,7 @@ import projectRoutes from "./routes/projectRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
 import { AppError } from "./utils/apperror.js";
 import { globalErrorHandler } from "./controllers/errorController.js";
+import { apiLimiter, authLimiter } from "./middleware/rateLimiter.js";
 
 dotenv.config();
 
@@ -21,9 +22,14 @@ const allowedOrigins = [
 ].filter(Boolean);
 
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production'
-    ? allowedOrigins
-    : "*",
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, curl, Postman)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: "GET,POST,PUT,DELETE,PATCH,OPTIONS",
   allowedHeaders: "Content-Type,Authorization",
   credentials: true,
@@ -34,18 +40,10 @@ app.options("*", cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// ✅ Production logging
-if (process.env.NODE_ENV !== 'production') {
-  app.use((req, res, next) => {
-    console.log('Incoming request:', {
-      method: req.method,
-      path: req.path,
-      body: req.body,
-      headers: req.headers
-    });
-    next();
-  });
-}
+// ✅ Rate limiting
+app.use('/api/', apiLimiter);
+app.use('/api/users/login', authLimiter);
+app.use('/api/users/signup', authLimiter);
 
 // ✅ Health check endpoint
 app.get("/health", (req, res) => {

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import toast from 'react-hot-toast';
 import '../styles/mainPage.css';
 import SwipeCard from '../components/SwipeCard';
 import { TbArrowBack } from 'react-icons/tb';
@@ -99,7 +100,7 @@ const MainPage = () => {
   };
 
   const handleSwipe = async (direction) => {
-    const currentProject = projects[currentIndex];
+    const currentProject = filteredProjects[safeIndex];
     try {
       const token = localStorage.getItem('token');
       if (direction === 'right') {
@@ -107,30 +108,33 @@ const MainPage = () => {
           method: 'POST',
           headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
         });
+        toast.success(`Applied to "${currentProject.title}"!`);
       } else if (direction === 'left') {
         await fetch(API_ENDPOINTS.skipProject(currentProject._id), {
           method: 'POST',
           headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
         });
+        toast('Skipped', { icon: '👋' });
       }
       setSwipeHistory((prev) => [...prev, { projectIndex: currentIndex, direction }]);
       if (currentIndex < projects.length - 1) setCurrentIndex((prev) => prev + 1);
       else fetchProjects();
-    } catch (error) {
-      console.error('Error handling swipe:', error);
+    } catch {
+      toast.error('Something went wrong. Please try again.');
     }
   };
 
   const handleSave = async () => {
-    const currentProject = projects[currentIndex];
+    const currentProject = filteredProjects[safeIndex];
     try {
       const token = localStorage.getItem('token');
       await fetch(`${API_ENDPOINTS.projects}/${currentProject._id}/save`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       });
-    } catch (error) {
-      console.error('Error saving project:', error);
+      toast.success(`Saved "${currentProject.title}"`);
+    } catch {
+      toast.error('Could not save project.');
     }
     setSwipeHistory((prev) => [...prev, { projectIndex: currentIndex, direction: 'up' }]);
     if (currentIndex < projects.length - 1) setCurrentIndex((prev) => prev + 1);

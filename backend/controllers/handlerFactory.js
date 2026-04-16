@@ -41,32 +41,46 @@ const getAll = (Model) =>
     });
   });
 
-// Update document
+// Update document (ownership-checked)
 const updateOne = (Model) =>
   catchAsync(async (req, res, next) => {
-    const doc = await Model.findByIdAndUpdate(req.params.id, req.body, {
+    const doc = await Model.findById(req.params.id);
+
+    if (!doc) {
+      return next(new AppError('No document found with that ID', 404));
+    }
+
+    // If the document has a creator field, verify ownership
+    if (doc.creator && req.user && doc.creator.toString() !== req.user._id.toString()) {
+      return next(new AppError('You are not authorized to update this resource', 403));
+    }
+
+    const updated = await Model.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true
     });
 
-    if (!doc) {
-      return next(new AppError('No document found with that ID', 404));
-    }
-
     res.status(200).json({
       status: 'success',
-      data: { doc }
+      data: { doc: updated }
     });
   });
 
-// Delete document
+// Delete document (ownership-checked)
 const deleteOne = (Model) =>
   catchAsync(async (req, res, next) => {
-    const doc = await Model.findByIdAndDelete(req.params.id);
+    const doc = await Model.findById(req.params.id);
 
     if (!doc) {
       return next(new AppError('No document found with that ID', 404));
     }
+
+    // If the document has a creator field, verify ownership
+    if (doc.creator && req.user && doc.creator.toString() !== req.user._id.toString()) {
+      return next(new AppError('You are not authorized to delete this resource', 403));
+    }
+
+    await Model.findByIdAndDelete(req.params.id);
 
     res.status(204).json({
       status: 'success',

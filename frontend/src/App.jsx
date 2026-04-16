@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback, useContext } from 'react';
+import PropTypes from 'prop-types';
+import { Toaster } from 'react-hot-toast';
 import {
   BrowserRouter as Router,
   Routes,
@@ -117,6 +119,10 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
+ProtectedRoute.propTypes = {
+  children: PropTypes.node.isRequired,
+};
+
 function AppContent() {
   const location = useLocation();
   const showNavbar = !['/', '/login', '/signup', '/profilesetup'].includes(
@@ -127,6 +133,21 @@ function AppContent() {
     <>
       {showNavbar && <Navbar />}
       {showNavbar && <ChatBox />}
+      <Toaster
+        position="bottom-center"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: '#1e2235',
+            color: '#f1f5f9',
+            border: '1px solid rgba(99,102,241,0.25)',
+            borderRadius: '10px',
+            fontSize: '14px',
+          },
+          success: { iconTheme: { primary: '#6ee7b7', secondary: '#1e2235' } },
+          error:   { iconTheme: { primary: '#fca5a5', secondary: '#1e2235' } },
+        }}
+      />
       <main className="content-wrapper">
         <Routes>
           <Route path="/" element={<Login />} />

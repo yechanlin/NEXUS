@@ -7,9 +7,9 @@ const router = express.Router();
 
 // Specific routes first
 router.get("/fetch", authController.protect, projectController.fetchProjects);
-router.get("/discover", authController.protect, projectController.fetchProjects);
 router.get("/my-projects", authController.protect, projectController.getMyProjects);
 router.get("/my-applications", authController.protect, projectController.getUserApplications);
+router.get("/saved", authController.protect, projectController.getSavedProjects);
 
 // Then parameterized routes
 router.get("/", authController.protect, projectController.getAllProjects);

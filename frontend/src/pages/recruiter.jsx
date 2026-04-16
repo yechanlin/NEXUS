@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import toast from 'react-hot-toast';
 import { API_ENDPOINTS, apiCall } from '../config/api';
 import { FiUsers, FiCheck, FiX, FiEye, FiClock, FiUser } from 'react-icons/fi';
 import '../styles/recruiter.css';
@@ -11,11 +12,7 @@ const Recruiter = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(() => {
-    fetchMyProjects();
-  }, []);
-
-  const fetchMyProjects = async () => {
+  const fetchMyProjects = useCallback(async () => {
     try {
       setLoading(true);
       const response = await apiCall(`${API_ENDPOINTS.userProjects}?page=${currentPage}&limit=10`);
@@ -28,7 +25,11 @@ const Recruiter = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage]);
+
+  useEffect(() => {
+    fetchMyProjects();
+  }, [fetchMyProjects]);
 
   const fetchApplications = async (projectId) => {
     try {
@@ -52,9 +53,10 @@ const Recruiter = () => {
         setApplications(prev =>
           prev.map(app => app._id === applicationId ? { ...app, status } : app)
         );
+        toast.success(`Application ${status}`);
       }
-    } catch (error) {
-      console.error('Error updating application status:', error);
+    } catch {
+      toast.error('Failed to update application status.');
     }
   };
 
@@ -112,6 +114,7 @@ const Recruiter = () => {
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {myProjects.map((project) => {
+
                     const isSelected = selectedProject?._id === project._id;
                     return (
                       <div
@@ -147,6 +150,34 @@ const Recruiter = () => {
                       </div>
                     );
                   })}
+                </div>
+              )}
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '16px' }}>
+                  <button
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    style={{ padding: '5px 12px', borderRadius: '7px', fontSize: '12px', fontWeight: 500,
+                      background: 'var(--bg-elevated)', color: 'var(--text-muted)', border: '1px solid var(--border)',
+                      cursor: 'pointer', opacity: currentPage === 1 ? 0.4 : 1 }}
+                  >
+                    ‹ Prev
+                  </button>
+                  <span style={{ padding: '5px 12px', borderRadius: '7px', fontSize: '12px',
+                    background: 'var(--bg-elevated)', color: 'var(--text-muted)', border: '1px solid var(--border)' }}>
+                    {currentPage} / {totalPages}
+                  </span>
+                  <button
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    style={{ padding: '5px 12px', borderRadius: '7px', fontSize: '12px', fontWeight: 500,
+                      background: 'var(--bg-elevated)', color: 'var(--text-muted)', border: '1px solid var(--border)',
+                      cursor: 'pointer', opacity: currentPage === totalPages ? 0.4 : 1 }}
+                  >
+                    Next ›
+                  </button>
                 </div>
               )}
             </div>

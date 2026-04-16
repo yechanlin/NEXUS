@@ -1,6 +1,7 @@
 import { useMapsLibrary } from '@vis.gl/react-google-maps';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { API_ENDPOINTS } from '../config/api';
 import '../styles/createProject.css';
 import PropTypes from 'prop-types';
@@ -11,40 +12,23 @@ const PlaceAutocomplete = ({ onPlaceSelect }) => {
   const placesLib = useMapsLibrary('places');
 
   useEffect(() => {
-    console.log('Places library loaded:', placesLib);
-    console.log('Window.google available:', !!window.google);
-    console.log('Input ref current:', !!inputRef.current);
-
-    if (!placesLib || !window.google?.maps?.places || !inputRef.current) {
-      console.log('Autocomplete not ready yet');
-      return;
-    }
-
-    console.log('Initializing autocomplete');
+    if (!placesLib || !window.google?.maps?.places || !inputRef.current) return;
 
     try {
       const autocomplete = new window.google.maps.places.Autocomplete(
         inputRef.current,
-        {
-          fields: ['geometry', 'name', 'formatted_address'],
-          types: ['address'],
-        },
+        { fields: ['geometry', 'name', 'formatted_address'], types: ['address'] },
       );
-
       const listener = autocomplete.addListener('place_changed', () => {
-        const place = autocomplete.getPlace();
-        console.log('Place selected:', place);
-        onPlaceSelect(place);
+        onPlaceSelect(autocomplete.getPlace());
       });
-
       return () => {
-        console.log('Cleaning up autocomplete');
         if (window.google?.maps?.event) {
           window.google.maps.event.removeListener(listener);
         }
       };
-    } catch (error) {
-      console.error('Error initializing autocomplete:', error);
+    } catch {
+      // Google Maps failed to load — user can type manually
     }
   }, [placesLib, onPlaceSelect]);
 
@@ -90,7 +74,7 @@ const CreateProject = () => {
     projectType: projectTypes[0],
   });
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [submitting, setSubmitting] = useState(false);
   const [skillSuggestions, setSkillSuggestions] = useState([]);
   const [showSkillSuggestions, setShowSkillSuggestions] = useState(false);
   const skillsInputRef = useRef(null);
@@ -106,7 +90,6 @@ const CreateProject = () => {
   };
 
   const handlePlaceSelect = (place) => {
-    console.log('Place selected in parent:', place);
     setForm((prev) => ({
       ...prev,
       location: place.formatted_address || place.name || '',
@@ -179,37 +162,32 @@ const CreateProject = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setSuccess('');
     const token = localStorage.getItem('token');
-    if (!token) {
-      setError('You must be logged in.');
-      return;
-    }
+    if (!token) { setError('You must be logged in.'); return; }
+    setSubmitting(true);
     try {
       const res = await fetch(API_ENDPOINTS.projects, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
           ...form,
-          skillsRequired: form.skillsRequired
-            .split(',')
-            .map((s) => s.trim())
-            .filter((s) => s !== ''),
+          skillsRequired: form.skillsRequired.split(',').map((s) => s.trim()).filter(Boolean),
           maxMembers: Number(form.maxMembers),
         }),
       });
       const data = await res.json();
       if (res.ok) {
-        setSuccess('Project created successfully!');
-        setTimeout(() => navigate('/mainPage'), 1200);
+        toast.success('Project created successfully!');
+        setTimeout(() => navigate('/my-projects'), 1200);
       } else {
         setError(data.message || 'Failed to create project.');
+        toast.error(data.message || 'Failed to create project.');
       }
     } catch {
       setError('Failed to create project.');
+      toast.error('Failed to create project.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -296,9 +274,10 @@ const CreateProject = () => {
             </option>
           ))}
         </select>
-        <button type="submit">Create Project</button>
+        <button type="submit" disabled={submitting}>
+          {submitting ? 'Creating...' : 'Create Project'}
+        </button>
         {error && <div className="error-message">{error}</div>}
-        {success && <div className="success-message">{success}</div>}
       </form>
     </div>
   );

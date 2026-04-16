@@ -12,6 +12,7 @@ export const API_ENDPOINTS = {
   users: `${API_BASE_URL}/api/users`,
   userProjects: `${API_BASE_URL}/api/projects/my-projects`,
   userApplications: `${API_BASE_URL}/api/projects/my-applications`,
+  savedProjects: `${API_BASE_URL}/api/projects/saved`,
   projectApplications: (projectId) =>
     `${API_BASE_URL}/api/projects/${projectId}/applications`,
   updateApplicationStatus: (projectId, applicationId) =>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { API_ENDPOINTS, apiCall } from '../config/api';
 import { FiClock, FiCheck, FiX, FiMapPin, FiTag, FiCalendar } from 'react-icons/fi';
 import '../styles/searcher.css';

@@ -65,14 +65,42 @@ const projectController = {
   // Save a project
   saveProject: catchAsync(async (req, res, next) => {
     const project = await Project.findById(req.params.id);
-
     if (!project) {
       return next(new AppError("Project not found", 404));
     }
-    // Logic to save the project for the user
+
+    const User = (await import('../models/User.js')).default;
+    const user = await User.findById(req.user._id);
+
+    const alreadySaved = user.savedProjects.some(
+      (id) => id.toString() === req.params.id
+    );
+    if (alreadySaved) {
+      return res.status(200).json({ status: "success", message: "Project already saved" });
+    }
+
+    user.savedProjects.push(req.params.id);
+    await user.save();
+
+    res.status(200).json({ status: "success", message: "Project saved" });
+  }),
+
+  // Get saved projects for the logged-in user
+  getSavedProjects: catchAsync(async (req, res, next) => {
+    const User = (await import('../models/User.js')).default;
+    const user = await User.findById(req.user._id).populate({
+      path: 'savedProjects',
+      populate: { path: 'creator', select: 'userName profilePicture' },
+    });
+
+    if (!user) {
+      return next(new AppError('User not found', 404));
+    }
+
     res.status(200).json({
-      status: "success",
-      message: "Project saved"
+      status: 'success',
+      results: user.savedProjects.length,
+      data: { projects: user.savedProjects },
     });
   }),
 
