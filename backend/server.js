@@ -40,6 +40,30 @@ app.options("*", cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// ✅ MongoDB Connection (cached for serverless)
+let isConnected = false;
+const connectDB = async () => {
+  if (isConnected && mongoose.connection.readyState === 1) return;
+  try {
+    await mongoose.connect(process.env.MONGO_URI);
+    isConnected = true;
+    console.log("✅ Connected to MongoDB");
+  } catch (error) {
+    console.error("❌ MongoDB Connection Error:", error.message);
+    throw error;
+  }
+};
+
+// Lazy-connect on first request (required for Vercel serverless)
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
+
 // ✅ Rate limiting
 app.use('/api/', apiLimiter);
 app.use('/api/users/login', authLimiter);
@@ -67,25 +91,13 @@ app.get("/", (req, res) => {
 // ✅ Global Error Handler
 app.use(globalErrorHandler);
 
-// ✅ MongoDB Connection with retry logic
-const connectDB = async () => {
-  try {
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log("✅ Connected to MongoDB");
-  } catch (error) {
-    console.error("❌ MongoDB Connection Error:", error.message);
-    // Don't call process.exit(1) in serverless — let the request fail gracefully
-    throw error;
-  }
-};
-
-// ✅ Start server
-const startServer = async () => {
-  await connectDB();
+// ✅ Only listen locally — on Vercel the app is imported as a serverless handler
+if (!process.env.VERCEL) {
   app.listen(port, () => {
     console.log(`🚀 Server running on port ${port}`);
     console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
   });
-};
+}
 
-startServer();
+// ✅ Export app for Vercel @vercel/node runtime
+export default app;
