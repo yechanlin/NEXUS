@@ -21,6 +21,7 @@ export const API_ENDPOINTS = {
   notifications: `${API_BASE_URL}/api/users/notifications`,
   markNotificationsRead: `${API_BASE_URL}/api/users/notifications/read-all`,
   profileSetup: `${API_BASE_URL}/api/users/profilesetup`,
+  userProfile: (userId) => `${API_BASE_URL}/api/users/${userId}/profile`,
   chat: `${API_BASE_URL}/api/chat`,
   chatMessages: (projectId) => `${API_BASE_URL}/api/chat/${projectId}`,
 };

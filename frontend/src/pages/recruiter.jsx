@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { API_ENDPOINTS, apiCall } from '../config/api';
 import { FiUsers, FiCheck, FiX, FiEye, FiClock, FiUser } from 'react-icons/fi';
@@ -224,7 +225,16 @@ const Recruiter = () => {
                                 </div>
                                 <div>
                                   <h3 style={{ fontWeight: 500, fontSize: '14px', color: '#f1f5f9' }}>
-                                    {application.user?.userName || 'Unknown User'}
+                                    {application.user?._id ? (
+                                      <Link
+                                        to={`/profile/${application.user._id}`}
+                                        style={{ color: '#818cf8', textDecoration: 'none' }}
+                                      >
+                                        {application.user.userName || 'Unknown User'}
+                                      </Link>
+                                    ) : (
+                                      application.user?.userName || 'Unknown User'
+                                    )}
                                   </h3>
                                   <p style={{ fontSize: '12px', color: 'var(--text-subtle)', marginTop: '1px' }}>
                                     Applied {formatDate(application.appliedAt)}

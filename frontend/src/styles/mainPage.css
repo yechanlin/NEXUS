@@ -357,6 +357,18 @@
   text-shadow: 0 2px 8px rgba(0,0,0,0.4);
 }
 
+.card-creator {
+  display: block;
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.55);
+  text-decoration: none;
+  margin-bottom: 6px;
+  position: relative;
+  z-index: 2;
+  transition: color 0.2s;
+}
+.card-creator:hover { color: rgba(255,255,255,0.9); }
+
 .card-location {
   display: flex;
   align-items: center;

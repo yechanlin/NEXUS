@@ -1,5 +1,6 @@
 import { factory } from './handlerFactory.js';
 import User from "../models/User.js";
+import Project from "../models/Project.js";
 import { catchAsync } from "../utils/catchAsync.js";
 import { AppError } from "../utils/apperror.js";
 
@@ -10,7 +11,21 @@ const userController = {
   updateUser: factory.updateOne(User),
   deleteUser: factory.deleteOne(User),
 
-  // Your custom user-specific controllers...
+  // Returns only public-safe fields + the user's created projects
+  // (factory.getOne returns the full doc including password hash — not safe to expose publicly)
+  getPublicProfile: catchAsync(async (req, res, next) => {
+    const user = await User.findById(req.params.id)
+      .select('userName profilePicture bio school fieldOfStudy createdAt');
+    if (!user) return next(new AppError('No user found with that ID', 404));
+
+    const projects = await Project.find({ creator: req.params.id })
+      .select('title description category projectType skillsRequired createdAt')
+      .sort('-createdAt')
+      .limit(10);
+
+    res.status(200).json({ status: 'success', data: { user, projects } });
+  }),
+
   updateUserProfile: catchAsync(async (req, res, next) => {
     const { profilePicture, userName, dateOfBirth, school, fieldOfStudy, bio } = req.body;
 

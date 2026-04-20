@@ -18,6 +18,7 @@ import Recruiter from './pages/recruiter';
 import Searcher from './pages/searcher';
 import Navbar from './components/Navbar';
 import ProfileEdit from './pages/ProfileEdit';
+import UserProfile from './pages/UserProfile';
 import ChatBox from './components/ChatBox';
 import { AuthContext } from './context/AuthContext';
 import { API_ENDPOINTS } from './config/api';
@@ -160,6 +161,7 @@ function AppContent() {
           <Route path="/recruiter" element={<ProtectedRoute><Recruiter /></ProtectedRoute>} />
           <Route path="/searcher" element={<ProtectedRoute><Searcher /></ProtectedRoute>} />
           <Route path="/profile-edit" element={<ProtectedRoute><ProfileEdit /></ProtectedRoute>} />
+          <Route path="/profile/:userId" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
         </Routes>
       </main>
     </>

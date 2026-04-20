@@ -4,6 +4,7 @@ import {
   useTransform,
   useAnimation,
 } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { FiX, FiCheck, FiMapPin, FiUsers, FiBookmark } from 'react-icons/fi';
 import PropTypes from 'prop-types';
 
@@ -82,6 +83,15 @@ const SwipeCard = ({ project, onSwipe, onSave }) => {
             )}
           </div>
           <h2 className="card-title">{project.title || 'Untitled Project'}</h2>
+          {project.creator?.userName && (
+            <Link
+              to={`/profile/${project.creator._id}`}
+              className="card-creator"
+              onClick={(e) => e.stopPropagation()}
+            >
+              by {project.creator.userName}
+            </Link>
+          )}
           {project.location && (
             <div className="card-location">
               <FiMapPin size={13} />

@@ -24,7 +24,10 @@ router.patch('/notifications/read-all', authController.protect, markNotification
 // Update the user profile (requires authentication)
 router.patch("/profilesetup", authController.protect, userController.updateUserProfile);
 
-// Get a user
+// Public profile — safe fields only + created projects (must be before /:id catch-all)
+router.get("/:id/profile", authController.protect, userController.getPublicProfile);
+
+// Get a user (full doc — internal use only, e.g. App.jsx fetchUserProfile for own profile)
 router.get("/:id", userController.getUser);
 
 export default router;
