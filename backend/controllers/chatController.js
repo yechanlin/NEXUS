@@ -27,6 +27,13 @@ export const getMessages = catchAsync(async (req, res, next) => {
     return next(new AppError("You do not have access to this project's chat", 403));
   }
 
+  // Mark all messages in this chat (not sent by me) as read by me.
+  // $addToSet prevents duplicate entries on repeated polls.
+  await Message.updateMany(
+    { project: projectId, sender: { $ne: req.user._id }, readBy: { $ne: req.user._id } },
+    { $addToSet: { readBy: req.user._id } }
+  );
+
   const messages = await Message.find({ project: projectId })
     .sort({ createdAt: 1 })
     .limit(100)

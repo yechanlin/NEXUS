@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useContext, useCallback } from 'react';
-import { FiMessageSquare, FiX, FiSend, FiChevronLeft } from 'react-icons/fi';
+import { FiMessageSquare, FiX, FiSend, FiChevronLeft, FiCheck } from 'react-icons/fi';
 import { AuthContext } from '../context/AuthContext';
 import { API_ENDPOINTS } from '../config/api';
 import '../styles/chat.css';
@@ -148,6 +148,16 @@ const ChatBox = () => {
 
   const currentUserId = user?.id || user?._id;
 
+  // Returns 'seen' if anyone else has readBy the message, 'delivered' otherwise.
+  // Only called for own messages — other people's messages don't show status ticks.
+  const getMessageStatus = (msg) => {
+    if (!msg.readBy || msg.readBy.length === 0) return 'delivered';
+    const seenByOther = msg.readBy.some(
+      (id) => id?.toString() !== currentUserId?.toString()
+    );
+    return seenByOther ? 'seen' : 'delivered';
+  };
+
   if (!user) return null;
 
   return (
@@ -270,7 +280,16 @@ const ChatBox = () => {
                               </span>
                             )}
                             <div className="msg-bubble">{msg.text}</div>
-                            <span className="msg-time">{formatTime(msg.createdAt)}</span>
+                            <div className="msg-meta">
+                              <span className="msg-time">{formatTime(msg.createdAt)}</span>
+                              {isOwn && (
+                                <span className={`msg-status ${getMessageStatus(msg)}`}>
+                                  {/* Single ✓ = delivered, double ✓✓ = seen */}
+                                  <FiCheck size={11} />
+                                  {getMessageStatus(msg) === 'seen' && <FiCheck size={11} className="msg-status-second" />}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </React.Fragment>

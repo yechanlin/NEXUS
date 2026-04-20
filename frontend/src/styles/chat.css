@@ -330,10 +330,33 @@
   border-bottom-left-radius: 4px;
 }
 
+/* msg-meta wraps the timestamp + status ticks in a row */
+.msg-meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 3px;
+  justify-content: flex-end;
+}
+
 .msg-time {
   font-size: 10px;
   color: #555;
-  margin-top: 3px;
+}
+
+/* Tick icons — gray for delivered, blue for seen */
+.msg-status {
+  display: flex;
+  align-items: center;
+  color: #555; /* delivered: gray */
+  position: relative;
+}
+.msg-status.seen {
+  color: #6366f1; /* seen: indigo */
+}
+/* The second tick overlaps slightly to create the ✓✓ effect */
+.msg-status-second {
+  margin-left: -5px;
 }
 
 /* ── Input area ── */

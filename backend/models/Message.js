@@ -21,6 +21,13 @@ const messageSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  // Tracks which users have fetched/read this message
+  // Used to show "Seen" (✓✓) vs "Delivered" (✓) status on the sender's side
+  readBy: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: [],
+  }],
 });
 
 // Index for efficient querying of messages by project
