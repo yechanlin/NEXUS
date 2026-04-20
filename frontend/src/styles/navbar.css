@@ -346,14 +346,55 @@
 .notification-dropdown-content::-webkit-scrollbar-track { background: transparent; }
 .notification-dropdown-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
+/* ── Hamburger button — hidden on desktop ── */
+.hamburger-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  transition: color 0.2s, background 0.2s;
+}
+.hamburger-btn:hover { color: var(--text-primary); background: var(--bg-elevated); }
+
 /* ── Responsive ── */
 @media (max-width: 768px) {
-  .nav-link span, .create-project-btn span { display: none; }
+  .hamburger-btn { display: flex; align-items: center; justify-content: center; }
+
+  /* Hide the inline nav links row — they'll show as a drawer instead */
+  .nav-links {
+    display: none;
+    position: fixed;
+    top: 57px; /* navbar height */
+    left: 0;
+    right: 0;
+    background: var(--bg-card, #151929);
+    border-bottom: 1px solid var(--border);
+    flex-direction: column;
+    padding: 8px 0 12px;
+    z-index: 999;
+  }
+  /* When hamburger is toggled, show the drawer */
+  .nav-links--open { display: flex; }
+
+  .nav-link {
+    width: 100%;
+    padding: 12px 20px;
+    border-radius: 0;
+    font-size: 15px;
+    justify-content: flex-start;
+  }
+  .nav-link span { display: inline; } /* Show text labels in drawer */
+
+  /* Hide create-project text + shrink to icon on mobile */
+  .create-project-btn span { display: none; }
   .create-project-btn { padding: 7px 10px; }
+
   .notification-dropdown { min-width: 90vw; right: -60px; }
 }
 
 @media (max-width: 480px) {
   .navbar { padding: 0 1rem; }
-  .nav-links { gap: 0; }
 }

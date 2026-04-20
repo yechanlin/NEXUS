@@ -9,6 +9,8 @@ import {
   FiBell,
   FiUser,
   FiLogOut,
+  FiMenu,
+  FiX,
 } from 'react-icons/fi';
 import { AuthContext } from '../context/AuthContext';
 import NotificationDropdown from './NotificationDropdown';
@@ -19,6 +21,7 @@ const Navbar = () => {
   const { user, profileData, fetchUserProfile, logout } = useContext(AuthContext);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const navigate = useNavigate();
 
@@ -106,26 +109,38 @@ const Navbar = () => {
     navigate('/');
   };
 
+  const closeMenu = () => setMenuOpen(false);
+
   return (
     <nav className="navbar">
-      <NavLink to="/mainPage" className="logo-text">
+      <NavLink to="/mainPage" className="logo-text" onClick={closeMenu}>
         NEXUS
       </NavLink>
-      <div className="nav-links">
-        <NavLink to="/mainPage" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
+
+      {/* Desktop nav links — hidden on mobile, shown as drawer when menuOpen */}
+      <div className={`nav-links${menuOpen ? ' nav-links--open' : ''}`}>
+        <NavLink to="/mainPage" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`} onClick={closeMenu}>
           <FiGrid /> <span>Discover</span>
         </NavLink>
-        <NavLink to="/searcher" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
+        <NavLink to="/searcher" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`} onClick={closeMenu}>
           <FiSearch /> <span>My Applications</span>
         </NavLink>
-        <NavLink to="/recruiter" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
+        <NavLink to="/recruiter" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`} onClick={closeMenu}>
           <FiUsers /> <span>Manage Projects</span>
         </NavLink>
-        <NavLink to="/my-projects" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
+        <NavLink to="/my-projects" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`} onClick={closeMenu}>
           <FiArchive /> <span>My Projects</span>
         </NavLink>
       </div>
       <div className="nav-actions">
+        {/* Hamburger — only visible on mobile via CSS */}
+        <button
+          className="hamburger-btn"
+          onClick={() => setMenuOpen((prev) => !prev)}
+          aria-label="Toggle menu"
+        >
+          {menuOpen ? <FiX size={22} /> : <FiMenu size={22} />}
+        </button>
         <NavLink to="/create-project" className="create-project-btn">
           <FiPlusSquare /> <span>Create Project</span>
         </NavLink>

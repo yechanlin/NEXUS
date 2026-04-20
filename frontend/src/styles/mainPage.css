@@ -592,6 +592,16 @@
 @media (max-width: 600px) {
   .main-content { padding: 1rem 0.75rem 1.5rem; }
   .filter-grid { grid-template-columns: 1fr; }
-  .card-stack { height: 500px; }
-  .card-title { font-size: 1.3rem; }
+
+  /* Use viewport height so card fills screen without overflow */
+  .card-stack { height: calc(100svh - 200px); min-height: 420px; max-height: 600px; }
+
+  /* Slightly smaller header on mobile so description gets more space */
+  .card-header { min-height: 130px; padding: 1.2rem 1.2rem 1rem; }
+  .card-title { font-size: 1.2rem; }
+  .card-body { padding: 1rem 1.2rem; }
+
+  /* Action bar — bigger tap targets on mobile */
+  .card-action-bar { padding: 10px 12px; }
+  .card-action-hint { font-size: 0.7rem; padding: 5px 10px; }
 }
