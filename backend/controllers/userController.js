@@ -26,6 +26,31 @@ const userController = {
     res.status(200).json({ status: 'success', data: { user, projects } });
   }),
 
+  // Search users by name, school, or field of study (case-insensitive partial match)
+  searchUsers: catchAsync(async (req, res, next) => {
+    const q = (req.query.q || '').trim();
+    if (!q) {
+      return res.status(200).json({ status: 'success', results: 0, data: { users: [] } });
+    }
+
+    // Escape regex special characters in user input
+    const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(escaped, 'i');
+
+    const users = await User.find({
+      _id: { $ne: req.user._id }, // exclude self
+      $or: [
+        { userName: regex },
+        { school: regex },
+        { fieldOfStudy: regex },
+      ],
+    })
+      .select('userName profilePicture school fieldOfStudy bio')
+      .limit(20);
+
+    res.status(200).json({ status: 'success', results: users.length, data: { users } });
+  }),
+
   updateUserProfile: catchAsync(async (req, res, next) => {
     const { profilePicture, userName, dateOfBirth, school, fieldOfStudy, bio } = req.body;
 

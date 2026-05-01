@@ -11,6 +11,8 @@ import {
   FiLogOut,
   FiMenu,
   FiX,
+  FiBookmark,
+  FiActivity,
 } from 'react-icons/fi';
 import { AuthContext } from '../context/AuthContext';
 import NotificationDropdown from './NotificationDropdown';
@@ -119,14 +121,23 @@ const Navbar = () => {
 
       {/* Desktop nav links — hidden on mobile, shown as drawer when menuOpen */}
       <div className={`nav-links${menuOpen ? ' nav-links--open' : ''}`}>
+        <NavLink to="/feed" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`} onClick={closeMenu}>
+          <FiActivity /> <span>Feed</span>
+        </NavLink>
         <NavLink to="/mainPage" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`} onClick={closeMenu}>
           <FiGrid /> <span>Discover</span>
         </NavLink>
+        <NavLink to="/people" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`} onClick={closeMenu}>
+          <FiSearch /> <span>People</span>
+        </NavLink>
+        <NavLink to="/saved" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`} onClick={closeMenu}>
+          <FiBookmark /> <span>Saved</span>
+        </NavLink>
         <NavLink to="/searcher" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`} onClick={closeMenu}>
-          <FiSearch /> <span>My Applications</span>
+          <FiUser /> <span>Applications</span>
         </NavLink>
         <NavLink to="/recruiter" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`} onClick={closeMenu}>
-          <FiUsers /> <span>Manage Projects</span>
+          <FiUsers /> <span>Manage</span>
         </NavLink>
         <NavLink to="/my-projects" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`} onClick={closeMenu}>
           <FiArchive /> <span>My Projects</span>

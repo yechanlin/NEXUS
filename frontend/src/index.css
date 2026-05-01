@@ -3,24 +3,30 @@
 @tailwind utilities;
 
 :root {
-  --bg-base:     #07090f;
-  --bg-surface:  #0e1220;
-  --bg-elevated: #131929;
-  --border:      rgba(255, 255, 255, 0.06);
+  --bg-base:      #07090f;
+  --bg-surface:   #0e1220;
+  --bg-elevated:  #131929;
+  --border:       rgba(255, 255, 255, 0.06);
   --border-accent: rgba(99, 102, 241, 0.2);
-  --accent:      #6366f1;
-  --accent-dark: #4f46e5;
+  --accent:       #6366f1;
+  --accent-dark:  #4f46e5;
   --accent-light: #818cf8;
   --text-primary: #f1f5f9;
-  --text-muted:  #94a3b8;
-  --text-subtle: #64748b;
+  --text-muted:   #94a3b8;
+  --text-subtle:  #64748b;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 html, body {
   background-color: var(--bg-base);
   background-image:
-    radial-gradient(ellipse at 15% 55%, rgba(67, 56, 202, 0.13) 0%, transparent 55%),
-    radial-gradient(ellipse at 85% 25%, rgba(109, 40, 217, 0.09) 0%, transparent 50%);
+    radial-gradient(ellipse at 20% 50%,  rgba(67,  56, 202, 0.22) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%,  rgba(109, 40, 217, 0.16) 0%, transparent 45%),
+    radial-gradient(ellipse at 55% 90%,  rgba(99, 102, 241, 0.10) 0%, transparent 40%),
+    radial-gradient(ellipse at 5%  5%,   rgba(139, 92, 246, 0.08) 0%, transparent 35%);
   background-attachment: fixed;
   color: var(--text-primary);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -36,3 +42,9 @@ html, body {
 .content-wrapper {
   padding-top: 64px;
 }
+
+/* ── Global scrollbar ── */
+::-webkit-scrollbar         { width: 5px; height: 5px; }
+::-webkit-scrollbar-track   { background: transparent; }
+::-webkit-scrollbar-thumb   { background: rgba(99, 102, 241, 0.22); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(99, 102, 241, 0.4); }

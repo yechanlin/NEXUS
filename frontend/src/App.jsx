@@ -19,6 +19,9 @@ import Searcher from './pages/searcher';
 import Navbar from './components/Navbar';
 import ProfileEdit from './pages/ProfileEdit';
 import UserProfile from './pages/UserProfile';
+import SavedProjects from './pages/SavedProjects';
+import People from './pages/People';
+import Feed from './pages/Feed';
 import ChatBox from './components/ChatBox';
 import { AuthContext } from './context/AuthContext';
 import { API_ENDPOINTS } from './config/api';
@@ -162,6 +165,9 @@ function AppContent() {
           <Route path="/searcher" element={<ProtectedRoute><Searcher /></ProtectedRoute>} />
           <Route path="/profile-edit" element={<ProtectedRoute><ProfileEdit /></ProtectedRoute>} />
           <Route path="/profile/:userId" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
+          <Route path="/saved" element={<ProtectedRoute><SavedProjects /></ProtectedRoute>} />
+          <Route path="/people" element={<ProtectedRoute><People /></ProtectedRoute>} />
+          <Route path="/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
         </Routes>
       </main>
     </>

@@ -7,42 +7,49 @@ import '../styles/createProject.css';
 import PropTypes from 'prop-types';
 import { ALL_AVAILABLE_SKILLS } from '../constants/skills';
 
-const PlaceAutocomplete = ({ onPlaceSelect }) => {
+const PlaceAutocomplete = ({ value, onChange, onPlaceSelect }) => {
   const inputRef = useRef(null);
   const placesLib = useMapsLibrary('places');
 
   useEffect(() => {
     if (!placesLib || !window.google?.maps?.places || !inputRef.current) return;
 
+    let autocomplete;
+    let listener;
     try {
-      const autocomplete = new window.google.maps.places.Autocomplete(
+      autocomplete = new window.google.maps.places.Autocomplete(
         inputRef.current,
         { fields: ['geometry', 'name', 'formatted_address'], types: ['address'] },
       );
-      const listener = autocomplete.addListener('place_changed', () => {
+      listener = autocomplete.addListener('place_changed', () => {
         onPlaceSelect(autocomplete.getPlace());
       });
-      return () => {
-        if (window.google?.maps?.event) {
-          window.google.maps.event.removeListener(listener);
-        }
-      };
     } catch {
-      // Google Maps failed to load — user can type manually
+      // Google Maps failed — fall back to plain text input below
     }
+    return () => {
+      if (listener && window.google?.maps?.event) {
+        window.google.maps.event.removeListener(listener);
+      }
+    };
   }, [placesLib, onPlaceSelect]);
 
   return (
     <input
       ref={inputRef}
+      name="location"
       type="text"
-      placeholder="Enter a location"
-      className="your-autocomplete-input-class"
+      placeholder="City, Country (or Remote)"
+      value={value}
+      onChange={onChange}
+      required
     />
   );
 };
 
 PlaceAutocomplete.propTypes = {
+  value: PropTypes.string.isRequired,
+  onChange: PropTypes.func.isRequired,
   onPlaceSelect: PropTypes.func.isRequired,
 };
 
@@ -210,7 +217,11 @@ const CreateProject = () => {
           onChange={handleChange}
           required
         />
-        <PlaceAutocomplete onPlaceSelect={handlePlaceSelect} />
+        <PlaceAutocomplete
+          value={form.location}
+          onChange={handleChange}
+          onPlaceSelect={handlePlaceSelect}
+        />
 
         <div className="skills-input-container">
           <input

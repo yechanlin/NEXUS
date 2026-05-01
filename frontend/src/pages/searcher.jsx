@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import { API_ENDPOINTS, apiCall } from '../config/api';
 import { FiClock, FiCheck, FiX, FiMapPin, FiTag, FiCalendar } from 'react-icons/fi';
 import '../styles/searcher.css';
@@ -9,6 +10,7 @@ const Searcher = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [filter, setFilter] = useState('all');
+  const [cancellingId, setCancellingId] = useState(null);
 
   useEffect(() => {
     fetchMyApplications();
@@ -26,6 +28,20 @@ const Searcher = () => {
       console.error('Error fetching applications:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCancelApplication = async (projectId) => {
+    if (!window.confirm('Cancel this application? You can reapply later.')) return;
+    setCancellingId(projectId);
+    try {
+      await apiCall(API_ENDPOINTS.applyProject(projectId), { method: 'DELETE' });
+      setApplications((prev) => prev.filter((item) => item.project?._id !== projectId));
+      toast.success('Application cancelled');
+    } catch (err) {
+      toast.error(err.message || 'Failed to cancel application');
+    } finally {
+      setCancellingId(null);
     }
   };
 
@@ -165,15 +181,37 @@ const Searcher = () => {
                       </div>
                     </div>
 
-                    {/* Status badge — muted */}
-                    <span style={{
-                      display: 'flex', alignItems: 'center', gap: '5px', flexShrink: 0,
-                      fontSize: '12px', fontWeight: 500, padding: '4px 10px', borderRadius: '999px',
-                      ...statusStyle,
-                    }}>
-                      {getStatusIcon(item.application?.status)}
-                      <span style={{ textTransform: 'capitalize' }}>{item.application?.status}</span>
-                    </span>
+                    {/* Status + cancel column */}
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px', flexShrink: 0 }}>
+                      <span style={{
+                        display: 'flex', alignItems: 'center', gap: '5px',
+                        fontSize: '12px', fontWeight: 500, padding: '4px 10px', borderRadius: '999px',
+                        ...statusStyle,
+                      }}>
+                        {getStatusIcon(item.application?.status)}
+                        <span style={{ textTransform: 'capitalize' }}>{item.application?.status}</span>
+                      </span>
+                      {item.application?.status === 'pending' && (
+                        <button
+                          onClick={() => handleCancelApplication(item.project?._id)}
+                          disabled={cancellingId === item.project?._id}
+                          style={{
+                            display: 'flex', alignItems: 'center', gap: '4px',
+                            fontSize: '11px', fontWeight: 500,
+                            padding: '4px 10px', borderRadius: '999px',
+                            background: 'rgba(252,165,165,0.06)',
+                            border: '1px solid rgba(252,165,165,0.2)',
+                            color: '#fca5a5',
+                            cursor: cancellingId === item.project?._id ? 'not-allowed' : 'pointer',
+                            opacity: cancellingId === item.project?._id ? 0.55 : 1,
+                            fontFamily: 'inherit',
+                            transition: 'all 0.15s',
+                          }}
+                        >
+                          <FiX size={11} /> Cancel
+                        </button>
+                      )}
+                    </div>
                   </div>
 
                   {/* Creator row */}

@@ -19,7 +19,9 @@ router.post("/", authController.protect, projectController.createProject);
 router.patch("/:id", authController.protect, projectController.updateProject);
 router.delete("/:id", authController.protect, projectController.deleteProject);
 router.post("/:id/save", authController.protect, projectController.saveProject);
+router.delete("/:id/save", authController.protect, projectController.unsaveProject);
 router.post("/:id/apply", authController.protect, projectController.applyProject);
+router.delete("/:id/apply", authController.protect, projectController.unapplyProject);
 router.post("/:id/skip", authController.protect, projectController.skipProject);
 router.patch("/:projectId/applications/:applicationId", authController.protect, projectController.updateApplicationStatus);
 

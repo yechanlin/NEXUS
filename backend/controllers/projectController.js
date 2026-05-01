@@ -85,6 +85,41 @@ const projectController = {
     res.status(200).json({ status: "success", message: "Project saved" });
   }),
 
+  // Remove a project from the logged-in user's saved list
+  unsaveProject: catchAsync(async (req, res, next) => {
+    const User = (await import('../models/User.js')).default;
+    const user = await User.findById(req.user._id);
+    if (!user) return next(new AppError("User not found", 404));
+
+    user.savedProjects = user.savedProjects.filter(
+      (id) => id.toString() !== req.params.id
+    );
+    await user.save();
+
+    res.status(200).json({ status: "success", message: "Project unsaved" });
+  }),
+
+  // Cancel the logged-in user's pending application
+  unapplyProject: catchAsync(async (req, res, next) => {
+    const project = await Project.findById(req.params.id);
+    if (!project) return next(new AppError("Project not found", 404));
+
+    const application = project.applications.find(
+      (app) => app.user.toString() === req.user._id.toString()
+    );
+    if (!application) return next(new AppError("No application found to cancel", 404));
+    if (application.status !== 'pending') {
+      return next(new AppError("Only pending applications can be cancelled", 400));
+    }
+
+    project.applications = project.applications.filter(
+      (app) => app.user.toString() !== req.user._id.toString()
+    );
+    await project.save();
+
+    res.status(200).json({ status: "success", message: "Application cancelled" });
+  }),
+
   // Get saved projects for the logged-in user
   getSavedProjects: catchAsync(async (req, res, next) => {
     const User = (await import('../models/User.js')).default;

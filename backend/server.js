@@ -5,6 +5,7 @@ import cors from "cors";
 import userRoutes from "./routes/userRoutes.js";
 import projectRoutes from "./routes/projectRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
+import postRoutes from "./routes/postRoutes.js";
 import { AppError } from "./utils/apperror.js";
 import { globalErrorHandler } from "./controllers/errorController.js";
 import { apiLimiter, authLimiter } from "./middleware/rateLimiter.js";
@@ -83,6 +84,7 @@ app.get("/health", (req, res) => {
 app.use("/api/users", userRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/chat", chatRoutes);
+app.use("/api/posts", postRoutes);
 
 app.get("/", (req, res) => {
   res.json({ status: "success", message: "NEXUS API is running" });

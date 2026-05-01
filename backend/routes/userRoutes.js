@@ -17,6 +17,9 @@ router.post("/logout", authController.logout);
 // Get all users
 router.get("/", userController.getAllUsers);
 
+// Search users by name / school / field (must be before /:id)
+router.get('/search', authController.protect, userController.searchUsers);
+
 // Get notifications for the logged-in user (must be before /:id)
 router.get('/notifications', authController.protect, getNotifications);
 router.patch('/notifications/read-all', authController.protect, markNotificationsRead);

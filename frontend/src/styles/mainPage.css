@@ -304,10 +304,20 @@
   justify-content: flex-end;
 }
 
+/* Subtle light-reflection highlight on card header */
+.card-header::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.09) 0%, transparent 55%);
+  pointer-events: none;
+  z-index: 0;
+}
+
 .card-header-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.45) 100%);
+  background: linear-gradient(to bottom, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.48) 100%);
   pointer-events: none;
 }
 
@@ -425,9 +435,16 @@
   font-weight: 500;
   padding: 0.3rem 0.7rem;
   border-radius: 999px;
-  background: rgba(99,102,241,0.1);
-  border: 1px solid rgba(99,102,241,0.2);
+  background: rgba(99,102,241,0.12);
+  border: 1px solid rgba(99,102,241,0.25);
   color: var(--accent-light);
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.card-skill-pill:hover {
+  background: rgba(99,102,241,0.2);
+  border-color: rgba(99,102,241,0.4);
+  box-shadow: 0 0 8px rgba(99,102,241,0.18);
 }
 
 .card-skill-more {
@@ -462,7 +479,11 @@
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.02em;
-  opacity: 0.45;
+  opacity: 0.55;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.05);
 }
 
 .card-action-skip  { color: #fca5a5; }

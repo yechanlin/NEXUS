@@ -18,12 +18,19 @@ export const API_ENDPOINTS = {
   updateApplicationStatus: (projectId, applicationId) =>
     `${API_BASE_URL}/api/projects/${projectId}/applications/${applicationId}`,
   skipProject: (projectId) => `${API_BASE_URL}/api/projects/${projectId}/skip`,
+  saveProject:    (projectId) => `${API_BASE_URL}/api/projects/${projectId}/save`,
+  applyProject:   (projectId) => `${API_BASE_URL}/api/projects/${projectId}/apply`,
   notifications: `${API_BASE_URL}/api/users/notifications`,
   markNotificationsRead: `${API_BASE_URL}/api/users/notifications/read-all`,
   profileSetup: `${API_BASE_URL}/api/users/profilesetup`,
   userProfile: (userId) => `${API_BASE_URL}/api/users/${userId}/profile`,
+  searchUsers: (q) => `${API_BASE_URL}/api/users/search?q=${encodeURIComponent(q)}`,
   chat: `${API_BASE_URL}/api/chat`,
   chatMessages: (projectId) => `${API_BASE_URL}/api/chat/${projectId}`,
+  posts:           `${API_BASE_URL}/api/posts`,
+  postLike:    (postId) => `${API_BASE_URL}/api/posts/${postId}/like`,
+  postComment: (postId) => `${API_BASE_URL}/api/posts/${postId}/comment`,
+  post:        (postId) => `${API_BASE_URL}/api/posts/${postId}`,
 };
 
 // Helper function for API calls
