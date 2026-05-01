@@ -129,7 +129,8 @@
   box-sizing: border-box;
 }
 
-.skill-suggestions-dropdown {
+.skill-suggestions-dropdown,
+.location-suggestions-dropdown {
   position: absolute;
   top: 100%;
   left: 0;
@@ -138,13 +139,14 @@
   border: 1px solid var(--border);
   border-top: none;
   border-radius: 0 0 8px 8px;
-  max-height: 160px;
+  max-height: 200px;
   overflow-y: auto;
   z-index: 100;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
-.skill-suggestion-item {
+.skill-suggestion-item,
+.location-suggestion-item {
   padding: 8px 14px;
   cursor: pointer;
   font-size: 0.9rem;
@@ -152,13 +154,20 @@
   transition: background 0.15s, color 0.15s;
 }
 
-.skill-suggestion-item:hover {
+.skill-suggestion-item:hover,
+.location-suggestion-item:hover {
   background: rgba(99, 102, 241, 0.08);
   color: var(--accent-light);
 }
 
-.skill-suggestion-item:last-child {
+.skill-suggestion-item:last-child,
+.location-suggestion-item:last-child {
   border-radius: 0 0 8px 8px;
+}
+
+.location-input-container {
+  position: relative;
+  width: 100%;
 }
 
 @media (max-width: 600px) {

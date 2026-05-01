@@ -1,57 +1,10 @@
-import { useMapsLibrary } from '@vis.gl/react-google-maps';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { API_ENDPOINTS } from '../config/api';
 import '../styles/createProject.css';
-import PropTypes from 'prop-types';
 import { ALL_AVAILABLE_SKILLS } from '../constants/skills';
-
-const PlaceAutocomplete = ({ value, onChange, onPlaceSelect }) => {
-  const inputRef = useRef(null);
-  const placesLib = useMapsLibrary('places');
-
-  useEffect(() => {
-    if (!placesLib || !window.google?.maps?.places || !inputRef.current) return;
-
-    let autocomplete;
-    let listener;
-    try {
-      autocomplete = new window.google.maps.places.Autocomplete(
-        inputRef.current,
-        { fields: ['geometry', 'name', 'formatted_address'], types: ['address'] },
-      );
-      listener = autocomplete.addListener('place_changed', () => {
-        onPlaceSelect(autocomplete.getPlace());
-      });
-    } catch {
-      // Google Maps failed — fall back to plain text input below
-    }
-    return () => {
-      if (listener && window.google?.maps?.event) {
-        window.google.maps.event.removeListener(listener);
-      }
-    };
-  }, [placesLib, onPlaceSelect]);
-
-  return (
-    <input
-      ref={inputRef}
-      name="location"
-      type="text"
-      placeholder="City, Country (or Remote)"
-      value={value}
-      onChange={onChange}
-      required
-    />
-  );
-};
-
-PlaceAutocomplete.propTypes = {
-  value: PropTypes.string.isRequired,
-  onChange: PropTypes.func.isRequired,
-  onPlaceSelect: PropTypes.func.isRequired,
-};
+import { US_LOCATIONS } from '../data/autocompleteData';
 
 const categories = [
   'Software',
@@ -84,23 +37,30 @@ const CreateProject = () => {
   const [submitting, setSubmitting] = useState(false);
   const [skillSuggestions, setSkillSuggestions] = useState([]);
   const [showSkillSuggestions, setShowSkillSuggestions] = useState(false);
+  const [locationSuggestions, setLocationSuggestions] = useState([]);
+  const [showLocationSuggestions, setShowLocationSuggestions] = useState(false);
   const skillsInputRef = useRef(null);
   const suggestionsContainerRef = useRef(null);
+  const locationContainerRef = useRef(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
 
-    if (name === 'skillsRequired') {
-      generateSkillSuggestions(value);
-    }
+    if (name === 'skillsRequired') generateSkillSuggestions(value);
+    if (name === 'location')       generateLocationSuggestions(value);
   };
 
-  const handlePlaceSelect = (place) => {
-    setForm((prev) => ({
-      ...prev,
-      location: place.formatted_address || place.name || '',
-    }));
+  const generateLocationSuggestions = (query) => {
+    if (!query || query.length < 2) {
+      setLocationSuggestions([]);
+      setShowLocationSuggestions(false);
+      return;
+    }
+    const q = query.toLowerCase();
+    const results = US_LOCATIONS.filter((l) => l.toLowerCase().includes(q)).slice(0, 8);
+    setLocationSuggestions(results);
+    setShowLocationSuggestions(results.length > 0);
   };
 
   const generateSkillSuggestions = (inputString) => {
@@ -157,6 +117,12 @@ const CreateProject = () => {
         !suggestionsContainerRef.current?.contains(event.target)
       ) {
         setShowSkillSuggestions(false);
+      }
+      if (
+        locationContainerRef.current &&
+        !locationContainerRef.current.contains(event.target)
+      ) {
+        setShowLocationSuggestions(false);
       }
     };
 
@@ -217,11 +183,34 @@ const CreateProject = () => {
           onChange={handleChange}
           required
         />
-        <PlaceAutocomplete
-          value={form.location}
-          onChange={handleChange}
-          onPlaceSelect={handlePlaceSelect}
-        />
+        <div className="location-input-container" ref={locationContainerRef}>
+          <input
+            name="location"
+            type="text"
+            placeholder="Location (e.g. San Francisco, Remote)"
+            value={form.location}
+            onChange={handleChange}
+            onFocus={() => generateLocationSuggestions(form.location)}
+            required
+            autoComplete="off"
+          />
+          {showLocationSuggestions && locationSuggestions.length > 0 && (
+            <div className="location-suggestions-dropdown">
+              {locationSuggestions.map((loc) => (
+                <div
+                  key={loc}
+                  className="location-suggestion-item"
+                  onMouseDown={() => {
+                    setForm((prev) => ({ ...prev, location: loc }));
+                    setShowLocationSuggestions(false);
+                  }}
+                >
+                  {loc}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
         <div className="skills-input-container">
           <input
